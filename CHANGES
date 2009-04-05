@@ -1,0 +1,81 @@
+
+Version 0.0.5:
+
+	* Added qtgenerateids script, which adds unique IDs to a QEL file.
+
+	* Converted the DTD into RELAX NG, a more powerful and flexible
+          schema language.  (See www.relaxng.org for more info.)  
+          Future QEL development will only use RELAX NG; the DTD 
+          will no longer be worked on.
+
+        * Added an optional header to QEL files, with 'title', 'author',
+	  'description', 'copyright', and 'license' elements.
+	
+	* Added 'type' attribute to quotation, author, and source elements.
+	
+	* Added 'rdf:resource' attributes to author and source elements.
+
+        * Rewrite qel.parse to use a pull-style parser (pulldom)
+	  instead of SAX.
+
+	* Added support for RST as an output format to the Quotation class
+          and to qtformat.
+
+
+Version 0.0.4:
+
+	* Put the code under the GPL, and put the DTD under the 
+	  W3C's software license.
+
+	* Began working on a GUI editor (the editor/ directory)
+
+	* Fixed a bug in qtformat's -c option
+
+	* Straightened out the handling of encoding the output as Latin-1
+
+	* Required the use of Expat as the parser
+
+        * Changed the public identifier to use amk.ca as the domain name 
+	  instead of python.org.  As a result the version number of the DTD
+	  was bumped to 2.01.  Nothing else in the DTD was changed.
+
+	
+Version 0.0.3:
+
+	* Implemented the QELdb class, which acts as a fast cache for a 
+	  (potentially large) QEL file.  
+
+        * Fixed bugs in dealing with the <pre/> element.
+
+	* Added -c option to qtgrep, to cause it to just print the number
+          of matching quotations for each file searched.
+
+	* Added docstrings so pydoc can produce some helpful output.
+
+        * Added XML output format to qtformat; this now pretty-prints QEL.
+
+	* As part of the previous change, excess whitespace is now
+          removed by the XML parser in more places.
+
+	* Removed most uses of isinstance() by using is_break(),
+	  is_plain(), and is_preformatted() predicates instead.
+
+	* Added a test suite for the simplify() internal function, which is
+          tricky to get right.
+
+
+Version 0.0.2:
+
+        * Fixed bugs in dealing with the <br/> element.
+
+	* Added a CSS1 stylesheet, xml/qel.css, for formatting QEL.
+
+	* Added a missing trailing newline to quotation-tools.cat
+
+	* New scripts: qtmerge for merging several QEL files into one,
+	  and fortune2qel to convert fortune's files into QEL.
+
+
+Version 0.0.1:
+
+	* Initial release

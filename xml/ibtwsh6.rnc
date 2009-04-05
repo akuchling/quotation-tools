@@ -1,0 +1,148 @@
+#	ibtwsh.dtd
+#	This is the Itsy Bitsy Teeny Weeny Simple Hypertext DTD.
+#	Its public identifier is -//XML-DEV List//DTD IBTWSH 6.0//EN
+#	The contents are dedicated to the public domain by
+#		the author, John Cowan <cowan@ccil.org>, except that
+#		John Cowan retains the moral right to be known as the author.
+#	This is draft 6.2
+#	Diff from 6.1: rel|rel now rel|rev, th|td@headers now IDREFS,
+#		table width no longer an integer, non-basic table attrs gone,
+#		rowspan and colspan must be non-negative
+#	Diff from 6.0: added attributes to ul, comment about img, new meta
+
+# This is a RELAX NG schema which describes a subset of XHTML Basic for
+# use within other schemas.  It is by intention equivalent
+# (within its scope) to -//W3C//DTD XHTML 1.1//EN, but is
+# not a derived work in the copyright sense.
+
+# It is often convenient for XML documents to have a bit of
+# documentation somewhere in them.  In the absence of a schema like
+# this one, that documentation winds up being <text/> only, which is
+# a pity, because rich text adds measurably to the readability of
+# documents.  By incorporating this schema by reference (as an
+# external parameter entity) into another schema, that schema inherits
+# the capabilities of this one.  Using HTML-compatible elements
+# and attributes allows the documentation to be passed straight
+# through to HTML renderers.
+
+# Current HTML renderers can cope with most XML tags, but empty
+# tags require special treatment.  Inserting a space before the
+# terminating "/>" usually makes the "/" (which is not HTML)
+# invisible.  Using "<tag></tag>" is not as effective, as the
+# latter is often misinterpreted as a second "<tag>".
+
+# Note that since the elements of this schema are intended to be
+# used within domain-specific elements of the surrounding DTD,
+# it is not necessary that every fragment begin with an "html"
+# element, as in HTML.  Recommended <define>s for elements
+# containing documentation are "horiz.model" for simple
+# text fragments and "struct.model" for documents in extenso.
+
+# Declarations
+
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+
+
+# Common attributes
+
+# All elements (except full-document elements) can have these attributes
+
+all =		attribute id {xsd:ID}?,
+		attribute class {token}?,
+		attribute title {text}?
+
+# All non-empty elements can have these attributes
+
+i18n =		attribute xml:lang {text}?,
+		attribute dir {"ltr" | "rtl"}?
+
+basic =		all, i18n
+
+
+# Models
+
+horiz.model =	basic & text & horiz*
+vert.model =	horiz.model & vert*
+struct.model = 	basic & vert*
+
+
+# Horizontal formatting elements
+
+horiz =		a | br | horiz.other
+
+a =		element a {
+			attribute href {xsd:anyURI}?,
+			attribute name {text}?,
+			attribute rel | rev {xsd:anyURI}?,
+			horiz.model
+			}
+
+br =		element br {all, empty}
+
+horiz.other =	element abbr | acronym | cite | code |
+			dfn | em | img | kbd | q | samp | span |
+			strong | var {horiz.model}
+
+
+# Vertical formatting elements
+
+vert	=	header | List | table | vert.other
+
+header = 	element h1 | h2 | h3 {horiz.model}
+
+
+List =		element dl {basic, element dt | dd {horiz.model}+ } |
+		element ol|ul {basic, element li {horiz.model}+ }
+
+aligns = 	attribute align {"left" | "center" | "right" | "justified"}?,
+		attribute valign {"top" | "middle" | "bottom" | "baseline"}?
+
+table = 	element table {
+			basic,
+			attribute summary {text}?,
+			element caption {horiz.model}?,
+			element tr {
+				basic,
+				aligns,
+				tabledata+}+
+			}
+
+tabledata =	element th | td {
+			aligns,
+			attribute abbr {text}?,
+			attribute axis {text}?,
+			attribute colspan {xsd:nonNegativeInteger}?,
+			attribute headers {xsd:IDREFS}?,
+			attribute rowspan {xsd:nonNegativeInteger}?,
+			attribute scope {"row" | "col" | "rowgroup" | "colgroup"}?,
+			vert.model
+			}
+
+vert.other =	element address {horiz.model} |
+		element blockquote {attribute cite {xsd:anyURI}?, struct.model} |
+		element div {struct.model} |
+		element p {horiz.model} |
+		element pre {horiz.model}
+
+
+# Support for complete HTML documents
+
+start = 	element html {
+			i18n,
+			attribute xml:base {xsd:anyURI}?,
+			attribute xml:space {"preserve" | "default"}?,
+			head,
+			element body {basic, vert*}
+			}
+
+head =		element head {
+			i18n,
+			element title {i18n, text},
+			element meta {
+				attribute name|http-equiv {token}?,
+				attribute content {text},
+				empty
+				}*
+			}
+
+# END OF ibtwsh.rnx

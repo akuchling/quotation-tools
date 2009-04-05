@@ -1,0 +1,54 @@
+# This is the Quotation Exchange Language, version 2.01, dated May 4
+# 2001.  
+# More information on this format is available at:
+#      http://www.amk.ca/qel/
+# The namespace URI for QEL is "http://www.amk.ca/qel/".
+#
+# Attributes which take date/time values should encode the value
+# according to the W3C NOTE on date/time formats:
+#
+#        http://www.w3.org/TR/NOTE-datetime
+#
+# This RELAX NG schema is a direct translation of the original DTD, 
+# and therefore should express exactly the same set of valid documents.
+
+# Include the IBTWSH grammar.
+#
+# IBTWSH stands for the Itsy-Bitsy Teeny-Weeny Simple Hypertext DTD;
+# it's a small and simple subset of HTML.  For QEL, the HTML subset
+# needed is still smaller, because there's no need to include images or
+# hyperlinks or headers in a quotation.  The supported elements are
+# therefore reduced by redefining some of the grammar symbols,
+# overriding IBTWSH's definitions.
+
+include "ibtwsh6.rnc" {
+    # Override the start element
+    start = element quotations { quotation*  }
+
+    # Reduce the number of HTMLish elements available from QEL 
+    vert = element p {horiz.model}
+    horiz = br | horiz.other
+    horiz.other =	element abbr | acronym | cite | code |
+			em | foreign | q | pre {horiz.model}
+}
+
+# Add the <foreign> element.
+# <code>foreign</code> is used for marking words in a
+# different language from the language of the rest of the quotation.
+# Usually this is rendered typographically by setting the foreign words
+# in italics, as in "English has become the <i>lingua franca</i> of
+# science."  
+
+foreign = element foreign { basic, horiz.model }
+
+
+quotation = element quotation { # The 'id' attribute comes from IBTWSH's 'all'
+                                attribute date {text}?,
+                                struct.model,
+                                author?, source?, note?
+                              }
+
+author = element author { horiz.model }
+source = element source { horiz.model }
+note = element note { struct.model }
+

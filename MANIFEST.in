@@ -1,0 +1,14 @@
+include README
+include setup.py
+include MANIFEST.in MANIFEST TODO CHANGES
+
+recursive-include qel *.py
+
+recursive-include sample *.xml
+
+recursive-include scripts fortune2qel qtformat qtgrep qtmerge
+
+recursive-include test test_*.py
+
+recursive-include xml *.dtd *.ent *.cat *.css
+

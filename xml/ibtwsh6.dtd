@@ -1,0 +1,330 @@
+<!--
+	ibtwsh.dtd
+	This is the Itsy Bitsy Teeny Weeny Simple Hypertext DTD.
+	Its public identifier is -//XML-DEV List//DTD IBTWSH 6.0//EN
+	The contents are dedicated to the public domain by
+		the author, John Cowan <cowan@ccil.org>, except that
+		John Cowan retains the moral right to be known as the author.
+	This is draft 6.0
+-->
+
+<!-- 
+======================================================================
+This is an XML DTD which describes a subset of XHTML Basic for embedded
+use within other XML DTDs.  It is by intention equivalent
+(within its scope) to -//W3C//DTD XHTML 1.1//EN, but is
+not a derived work in the copyright sense.  (Brief excerpts from
+HTML 4.0 Transitional appear here and there.)
+
+It is often convenient for XML documents to have a bit of
+documentation somewhere in them.  In the absence of a DTD like
+this one, that documentation winds up being #PCDATA only, which is
+a pity, because rich text adds measurably to the readability of
+documents.  By incorporating this DTD by reference (as an
+external parameter entity) into another DTD, that DTD inherits
+the capabilities of this one.  Using HTML-compatible elements
+and attributes allows the documentation to be passed straight
+through to HTML renderers.
+
+Current HTML renderers can cope with most XML tags, but empty
+tags require special treatment.  Inserting a space before the
+terminating "/>" usually makes the "/" (which is not HTML)
+invisible.  Using "<tag></tag>" is not as effective, as the
+latter is often misinterpreted as a second "<tag>".
+
+Note that since the elements of this DTD are intended to be
+used within domain-specific elements of the surrounding DTD,
+it is not necessary that every fragment begin with an "html"
+element, as in HTML.  Recommended content models for elements
+containing documentation are "%horiz.model;" for simple
+text fragments and "%struct.model;" for documents in extenso.
+
+Draft 6.0 is seriously incompatible with drafts 5.0 and earlier,
+but *is* a subset of XHTML Basic.  I will keep draft 5.0 around;
+note that I have changed the FPI.
+======================================================================
+-->
+
+
+<!-- =========== Common attributes =========== -->
+
+<!-- All elements (except full-document elements) have these attributes -->
+<!ENTITY % all		"id ID #IMPLIED
+			class CDATA #IMPLIED
+			title CDATA #IMPLIED">
+
+<!-- All non-empty elements have these attributes -->
+<!ENTITY % i18n		"xml:lang CDATA #IMPLIED
+			dir (ltr|rtl) 'ltr'">
+
+<!ENTITY % basic	"%all; %i18n;">
+
+
+<!-- =========== Models =========== -->
+
+<!ENTITY % horiz "#PCDATA | a | abbr | acronym | br | cite | code |
+		dfn | em | img | kbd | q | samp | span |
+		strong | var">
+
+<!ENTITY % vert "address | blockquote | div | dl | h1 | h2 | h3 |
+		ol | p | pre | table | ul">
+
+<!ENTITY % horiz.model "(%horiz;)*">
+
+<!ENTITY % vert.model "(%horiz; | %vert;)*">
+
+<!ENTITY % struct.model "(%vert;)*">
+
+
+<!-- =========== Horizontal formatting elements =========== -->
+
+<!-- Abbreviations (normal) -->
+<!ELEMENT abbr %horiz.model;>
+<!ATTLIST abbr
+	%basic;>
+
+<!-- Acronyms (normal) -->
+<!ELEMENT acronym %horiz.model;>
+<!ATTLIST acronym
+	%basic;>
+
+<!-- Citation (italics) -->
+<!ELEMENT cite %horiz.model;>
+<!ATTLIST cite 
+	%basic;>
+
+<!-- Source code (monowidth) -->
+<!ELEMENT code %horiz.model;>
+<!ATTLIST code
+	%basic;>
+
+<!--Terms being defined (normal) -->
+<!ELEMENT dfn %horiz.model;>
+<!ATTLIST dfn
+	%basic;>
+
+<!--Emphasis (italics) -->
+<!ELEMENT em %horiz.model;>
+<!ATTLIST em
+	%basic;>
+
+<!--Keyboard input -->
+<!ELEMENT kbd %horiz.model;>
+<!ATTLIST kbd
+	%basic;>
+
+<!-- Quotation (appropriate quotation marks) -->
+<!ELEMENT q %horiz.model;>
+<!ATTLIST q
+	%basic;
+	cite CDATA #IMPLIED>
+
+<!-- Sample output text (monowidth) -->
+<!ELEMENT samp %horiz.model;>
+<!ATTLIST samp
+	%basic;>
+
+<!-- Arbitrary span of text -->
+<!ELEMENT span %horiz.model;>
+<!ATTLIST span
+	%basic;>
+
+<!-- Strong emphasis (boldface) -->
+<!ELEMENT strong %horiz.model;>
+<!ATTLIST strong
+	%basic;>
+
+<!-- Variable names (italics) -->
+<!ELEMENT var %horiz.model;>
+<!ATTLIST var
+	%basic;>
+
+
+<!-- Hypertext anchors.
+	CONSTRAINT: A elements are not allowed inside
+	other A elements, a fact that XML cannot express. -->
+<!ELEMENT a %horiz.model;>
+<!ATTLIST a
+	%basic;
+	href CDATA #IMPLIED
+	name CDATA #IMPLIED
+	rel CDATA #IMPLIED
+	rev CDATA #IMPLIED>
+
+<!-- Mandatory line breaks -->
+<!ELEMENT br EMPTY>
+<!ATTLIST br
+	%all;>
+
+<!-- =========== Headers =========== -->
+
+<!ELEMENT h1 %horiz.model;>
+<!ATTLIST h1
+	%basic;>
+
+<!ELEMENT h2 %horiz.model;>
+<!ATTLIST h2
+	%basic;>
+
+<!ELEMENT h3 %horiz.model;>
+<!ATTLIST h3
+	%basic;>
+
+
+<!-- =========== Lists =========== -->
+
+<!-- Definition list -->
+<!ELEMENT dl (dt|dd)+>
+<!ATTLIST dl
+	%basic;>
+
+<!-- Defined term -->
+<!ELEMENT dt %horiz.model;>
+<!ATTLIST dt
+	%basic;>
+
+<!-- Definition -->
+<!ELEMENT dd %horiz.model;>
+<!ATTLIST dd
+	%basic;>
+
+<!-- Ordered list -->
+<!ELEMENT ol (li)+>
+<!ATTLIST ol
+	%basic;>
+
+<!-- Unordered list -->
+<!ELEMENT ul (li)+>
+<!ATTLIST li
+	%basic;>
+
+<!-- List element -->
+<!ELEMENT li %horiz.model;>
+<!ATTLIST li
+	%basic;>
+
+
+
+<!-- =========== Basic table support =========== -->
+
+<!-- Shared attributes -->
+<!ENTITY % aligns
+	"align (left | center | right | justify) #IMPLIED
+	valign (top | middle | bottom | baseline) #IMPLIED">
+
+<!-- Table -->
+<!ELEMENT table (caption?, tr+)>
+<!ATTLIST table
+	%basic;
+	border CDATA #IMPLIED
+	cellpadding CDATA #IMPLIED
+	cellspacing CDATA #IMPLIED
+	summary CDATA #IMPLIED
+	width CDATA #IMPLIED>
+
+<!-- Table caption -->
+<!ELEMENT caption %horiz.model;>
+<!ATTLIST caption
+	%basic;>
+
+<!-- Table row -->
+<!ELEMENT tr (th | td)+>
+<!ATTLIST tr
+	%basic;
+	%aligns;>
+	
+
+<!-- Table header -->
+<!ELEMENT th %vert.model;>
+<!ATTLIST th
+	%basic;
+	%aligns;
+	abbr CDATA #IMPLIED
+	axis CDATA #IMPLIED
+	colspan CDATA "1"
+	headers IDREFS #IMPLIED
+	rowspan CDATA "1"
+	scope CDATA #IMPLIED>
+
+<!-- Table data -->
+<!ELEMENT td %vert.model;>
+<!ATTLIST td
+	%basic;
+	%aligns;
+	abbr CDATA #IMPLIED
+	axis CDATA #IMPLIED
+	colspan CDATA "1"
+	headers IDREFS #IMPLIED
+	rowspan CDATA "1"
+	scope CDATA #IMPLIED>
+
+
+<!-- =========== Other vertical elements =========== -->
+
+<!-- Address block -->
+<!ELEMENT address %horiz.model;>
+<!ATTLIST address
+	%basic;>
+
+<!-- Block quotation -->
+<!ELEMENT blockquote %struct.model;>
+<!ATTLIST blockquote
+	%basic;
+	cite CDATA #IMPLIED>
+
+<!-- General text division -->
+<!ELEMENT div %struct.model;>
+<!ATTLIST div
+	%basic;>
+
+<!-- Paragraph -->
+<!ELEMENT p %horiz.model;>
+<!ATTLIST p
+	%basic;>
+
+<!-- Preformatted text -->
+<!ELEMENT pre %horiz.model;>
+<!ATTLIST pre
+	%basic;>
+
+
+<!-- =========== Standard XML and HTML entities =========== -->
+
+<!ENTITY % HTMLlat1 PUBLIC
+    "-//W3C//ENTITIES Latin 1 for XHTML//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent">
+%HTMLlat1;
+
+ <!ENTITY % HTMLspecial PUBLIC
+    "-//W3C//ENTITIES Special for XHTML//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent">
+%HTMLspecial;
+
+ <!ENTITY % HTMLsymbol PUBLIC
+    "-//W3C//ENTITIES Symbols for XHTML//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent">
+%HTMLsymbol;
+
+
+<!-- =========== Support for complete HTML documents =========== -->
+
+<!ELEMENT html (head, body)>
+<!ATTLIST html
+	%i18n;
+	xmlns CDATA #FIXED "http://www.w3.org/1999/xhtml"
+	xml:base CDATA #IMPLIED
+	xml:space (preserve | default) #FIXED "default">
+
+<!ELEMENT head (title)>
+<!ATTLIST head
+	%i18n;>
+
+<!ELEMENT title (#PCDATA)>
+<!ATTLIST title
+	%i18n;>
+
+<!ELEMENT body %struct.model;>
+<!ATTLIST body
+	%all;>
+
+<!-- =========== END OF ibtwsh.dtd =========== -->

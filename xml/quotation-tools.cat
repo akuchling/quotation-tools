@@ -1,0 +1,7 @@
+PUBLIC "+//IDN amk.ca//DTD Quotation Exchange Language 2.01//EN//XML" qel-2.01.dtd
+PUBLIC "-//W3C//ENTITIES Latin 1 for XHTML//EN" xhtml-lat1.ent
+PUBLIC "-//W3C//ENTITIES Special for XHTML//EN" xhtml-special.ent
+PUBLIC "-//W3C//ENTITIES Symbols for XHTML//EN" xhtml-symbol.ent
+PUBLIC "-//XML-DEV List//DTD IBTWSH 6.0//EN" ibtwsh6.dtd
+
+

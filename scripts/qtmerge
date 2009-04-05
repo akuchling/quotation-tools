@@ -1,0 +1,79 @@
+#
+# qtmerge
+# Copyright (C) 2002 A.M. Kuchling
+#
+# Script for merging two or more QEL files together
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+import sys, getopt, time
+import qel
+
+__doc__ = """%s [options] file1 file2 ...
+Merge the QEL files 'file1', 'file2', and output the resulting QEL file
+to stdout.
+Options: --strict     Abort if two quotations have the same ID (default)
+         --loose      Generate new ID if two quotations have the same ID
+""" % sys.argv[0]
+
+def main():
+    # Set defaults
+    strict = 1
+
+    # Parse options
+    opts, args = getopt.getopt(sys.argv[1:], '',
+                               ['strict', 'loose'])
+    for opt, param in opts:
+        if opt == '--strict':
+            strict=1
+        elif opt == '--loose':
+            strict = 0
+
+    if len(args) == 0:
+        print __doc__
+        sys.exit(1)
+	
+    encoding = 'UTF-8'        
+    print qel.QEL_HEADER % encoding
+
+    # Merge the listed files
+    ids = {}
+    for filename in args:
+        input = open(filename, 'r')
+        L = qel.parse.parse(input)
+        for qt in L:
+            if qt.id is not None:
+                if ids.has_key(qt.id):
+                    if strict:
+                        sys.stderr.write('%s:Duplicate ID %s' %
+                                         (filename, repr(str(qt.id))))
+                        sys.exit(2)
+                    else:
+                        # We're in non-strict mode, so we need to generate
+                        # a new unique ID for this quotation.
+                        while 1:
+                            new_id = str(int(time.time()))
+                            if not ids.has_key(new_id):
+                                break
+
+                        qt.id = new_id
+
+                ids[qt.id]=None
+
+            print qt.as_xml(encoding)
+            
+        input.close()
+
+    print qel.QEL_FOOTER
+    
+if __name__ == '__main__':
+    main()
+

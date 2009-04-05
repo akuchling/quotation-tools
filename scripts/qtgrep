@@ -1,0 +1,97 @@
+#!/usr/bin/env python
+# 
+# qtgrep
+# Copyright (C) 2002 A.M. Kuchling
+#
+# Search through a QEL document for a given regular expression, and outputs
+# a new QEL document containing the matching quotations.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+import sys, re, getopt
+import qel
+
+__revision__ = "$Id: qtgrep,v 1.5 2002/09/29 23:51:02 akuchling Exp $"
+
+__doc__ = """Usage: %s [options] file1.xml file2.xml ...
+If no filenames are provided, standard input will be read.
+""" % sys.argv[0]
+
+def is_matching(pattern, quotation):
+    """Return true if some of the text in 'quotation' matches
+    the compiled regex object 'pattern'."""
+    
+    for para in quotation.text:
+        for t in para:
+            if pattern.search(t.text):
+                return 1
+    return 0
+
+def filename(file):
+    """Return the file's name; 'file' is either a string which is just
+    returned as-is, or sys.stdin.
+    """
+    if file is sys.stdin: return '<stdin>'
+    else: return file
+    
+def main():
+    # Default flags
+    count = 0                           # Just display a count of matches
+    
+    # Process the command-line arguments
+    opts, args = getopt.getopt(sys.argv[1:], 'c',
+			       ['count'] )
+    for opt, arg in opts:
+        if opt in ['-c', '--count']: count=1  
+
+    if len(args) < 1:
+        print __doc__
+        sys.exit(1)
+        
+    expr = args[0] ; args = args[1:]
+    pattern = re.compile(expr)
+    
+    # Loop over the input files; use sys.stdin if no files are specified
+    if len(args) == 0: args = [sys.stdin]
+    qtlist = []
+
+    encoding = 'UTF-8'        
+    if not count:
+        print qel.QEL_HEADER % encoding
+
+
+    for file in args:
+	if isinstance(file, str):
+            input = open(file, 'r')
+	else:
+            input = file
+        qtlist = qel.parse.parse(input)
+        matches = 0
+        for qt in qtlist:
+            if is_matching(pattern, qt):
+                matches += 1
+                if count:
+                    pass
+                else:
+                    # Default is to print the quotations
+                    print qt.as_xml(encoding)
+
+        # File completed
+        if count:
+            print filename(file),':',matches
+            
+    if not count:
+        print qel.QEL_FOOTER
+        
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,142 @@
+#!/usr/bin/env python
+# 
+# qtformat
+# Copyright (C) 2002 A.M. Kuchling
+#
+# Reads a document in the QEL DTD, converting it to a list of Quotation
+# objects.  The list can then be output in several formats.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+import sys, getopt, string
+import qel
+from qel import parse, quotation
+
+__revision__ = "$Id: qtformat,v 1.12 2004/07/14 15:08:38 akuchling Exp $"
+
+__doc__ = """Usage: %s [options] file1.xml file2.xml ...
+If no filenames are provided, standard input will be read.
+Output formats:
+  -f or --fortune   Produce output for the fortune(1) program
+  -h or --html      Produce HTML output
+  -R or --rst       Produce RestructuredText output
+  -t or --text      Produce plain text output
+  -w or --wiki      Produce WikiPedia-style Wiki output
+  -x or --xml       Produce pretty-printed QEL output
+Other options: 
+  -m N or --max N   Suppress quotations longer than N lines; 
+                    defaults to 0, which suppresses no quotations at all.
+  -r or --randomize Output quotations in random order                      
+  -s N or --split N Divide the output into chunks of roughly N kilobytes;
+                    the division is indicated by a line containing just
+                    "NEW FILE 1/10"
+""" % sys.argv[0]
+
+# This function is used to count the number of lines in a
+# quotation's text representation.
+def count_lines(qt, method):
+    meth = getattr(qt, method)
+    output = meth()
+    return string.count(output, '\n')
+
+def main():
+    encoding = 'UTF-8'
+    # Process the command-line arguments
+    opts, args = getopt.getopt(sys.argv[1:], 'fhtwxm:Rrs:',
+			       ['fortune', 'html', 'text', 'wiki', 'xml',
+				'max=', 'help', 'randomize', 'rst', 'split='] )
+    # Set defaults
+    maxlength = 0 ; method = 'as_fortune' 
+    randomize = 0
+    split_size = None
+    
+    # Process arguments
+    for opt, arg in opts:
+	if opt in ['-f', '--fortune']: 
+	    method='as_fortune'
+	elif opt in ['-h', '--html']: 
+	    method = 'as_html'
+	elif opt in ['-R', '--rst']: 
+	    method = 'as_rst'
+	elif opt in ['-t', '--text']: 
+	    method = 'as_text'
+	elif opt in ['-w', '--wiki']: 
+	    method = 'as_wiki'
+	elif opt in ['-x', '--xml']: 
+	    method = 'as_xml'
+	elif opt in ['-m', '--max']: 
+	    maxlength = string.atoi(arg)
+	elif opt in ['-r', '--randomize']:
+            randomize = 1
+	elif opt in ['-s', '--split']:
+            split_size = int(arg) * 1024
+	elif opt == '--help': 
+	    print __doc__ ; sys.exit(0)
+
+    # Loop over the input files; use sys.stdin if no files are specified
+    if len(args) == 0: args = [sys.stdin]
+    qtcoll = None
+    for file in args:
+        if isinstance(file, str): input = open(file, 'r')
+	else: input = file
+        qtcoll2 = parse.parse(input)
+        if maxlength!=0:
+            qtcoll2 = filter(lambda qt, maxlength=maxlength, method=method, :
+                             count_lines(qt, method) <= maxlength,
+                             qtcoll2)
+        if qtcoll is None:
+            qtcoll = qtcoll2
+        else:
+            qtcoll.extend(qtcoll2)
+
+    # Randomize the order of the quotations
+    if randomize:
+        import random
+        random.shuffle(qtcoll)
+        q2 = []
+
+    if method == 'as_xml':
+        sys.stdout.write(qtcoll.as_xml(encoding))
+        return
+    
+    # If we're splitting the output into several files, count up the
+    # total number of files
+    current_file_size = 0
+    num_files = 1
+    if split_size is not None:
+        for quote in qtcoll:
+            current_file_size += len(quote)
+            if current_file_size > split_size:
+                current_file_size = current_file_size % split_size
+                num_files += 1
+
+    # Output the quotations
+    current_file_size = 0
+    if split_size is not None:
+        print "NEW FILE 1/%i" % num_files
+        cur_file = 1
+
+    for i in range(len(qtcoll)):
+        quote = qtcoll[i]
+        meth = getattr(quote, method)
+        print meth()
+        current_file_size += len(quote)
+        if (split_size is not None and
+            current_file_size > split_size and
+            i < len(qtcoll) - 1 ):
+            current_file_size = current_file_size % split_size
+            cur_file += 1
+            print "NEW FILE %i/%i" % (cur_file, num_files)
+    # We're done!
+
+if __name__ == '__main__':
+    main()
+    
