@@ -350,7 +350,7 @@ class Quotation:
                         output += '\n'
                     start = j + 1
 
-            output += format_paragraph_as_text(paragraph[start:], "",
+            output += '*' + format_paragraph_as_text(paragraph[start:], "",
                                                use_wiki=True) + '\n'
 
         para = ""
@@ -366,7 +366,7 @@ class Quotation:
                 para += v
             
         if para:
-            para = "- " + para
+            para = "**" + para
             lines = textwrap.wrap(para, 75)
             para = '\n'.join(lines) + '\n'
             output = output.rstrip() + '\n' + para
@@ -603,7 +603,7 @@ class CitedText (Markup):
     "Text inside <cite>...</cite>"
 
     text_char = "_"
-    wiki_delim = ("<i>", "</i>")
+    wiki_delim = ("''", "''")
     xml_tag = html_tag  = "cite"
 
     def is_plain(self):        return 0

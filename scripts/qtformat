@@ -29,7 +29,7 @@ Output formats:
   -h or --html      Produce HTML output
   -R or --rst       Produce RestructuredText output
   -t or --text      Produce plain text output
-  -w or --wiki      Produce WikiPedia-style Wiki output
+  -w or --wiki      Produce Wikiquote.org-style Wiki output
   -x or --xml       Produce pretty-printed QEL output
 Other options: 
   -m N or --max N   Suppress quotations longer than N lines; 
