@@ -25,10 +25,11 @@ def format_paragraph_as_text (paragraph, indent,
             output += t.as_wiki()
         else:
             output += t.as_text()
-    wrap = textwrap.TextWrapper(79, initial_indent=indent)
-    wrap.wordsep_re = re.compile(r'(\s+)')
-    lines = wrap.wrap(output)
-    output = '\n'.join(lines) + '\n'
+    if not use_wiki:
+        wrap = textwrap.TextWrapper(79, initial_indent=indent)
+        wrap.wordsep_re = re.compile(r'(\s+)')
+        lines = wrap.wrap(output)
+        output = '\n'.join(lines) + '\n'
     return output
 
 def format_partial_paragraph_as_xml(paragraph, indent, encoding):
