@@ -45,6 +45,8 @@ class QuotationTest(unittest.TestCase):
 """)
 	self.assertEquals(self.qt.as_text(),
 			  """para1\n""")
+        self.assertEquals(len(self.qt), 5)
+
         # Test a break
         self.qt.id = self.qt.date = None
         self.qt.text = [ [quotation.Text('line1'), quotation.Break(),
@@ -111,7 +113,8 @@ class QuotationTest(unittest.TestCase):
 
 note
 """)
-                             
+
+class TestText(unittest.TestCase):                             
     def test_text(self):
         "Text class and its subclasses"
 
@@ -120,6 +123,7 @@ note
         self.assertEquals(t.as_text(), 'content')
         self.assertEquals(t.as_html(), 'content')
         self.assertEquals(t.as_xml(), 'content')
+        self.assertEquals(t.as_wiki(), 'content')
 
     def test_text_encoding(self):
         t = quotation.Text(u'Montr\xe9al')
@@ -130,6 +134,7 @@ note
         # Test handling of quoting
         t = quotation.Text('&<>')
         self.assertEquals(t.as_text(), '&<>')
+        self.assertEquals(t.as_wiki(), '&<>')
         self.assertEquals(t.as_html(), '&amp;&lt;&gt;')
         self.assertEquals(t.as_xml(), '&amp;&lt;&gt;')
 
@@ -148,6 +153,34 @@ note
             t = klass('body')
             self.assertEquals(t.as_text(), text)
             self.assertEquals(t.as_html(), html)            
-            
+
+class CollectionTest(unittest.TestCase):
+    def setUp(self):
+        coll = self.coll = quotation.Collection()
+        coll.title = 'My Collection'
+        coll.editor = 'AMK'
+        coll.description = 'A big collection.'
+        coll.copyright = '(C) to AMK.'
+        coll.license = [quotation.Text('CC0')]
+
+    def tearDown(self):
+        del self.coll
+
+    def test_xmlconv(self):
+        self.assertEqual(self.coll.as_xml(), """<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="http://www.amk.ca/qel/qel.css"?>
+<quotations
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <title>My Collection</title>
+  <editor>AMK</editor>
+  <description>A big collection.</description>
+  <copyright>(C) to AMK.</copyright>
+  <license>CC0
+  </license>
+</quotations>
+""")
+
+        
 if __name__ == "__main__":
     unittest.main()
