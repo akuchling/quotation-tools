@@ -57,17 +57,17 @@ def format_paragraph_as_xml(paragraph, indent, encoding):
         t = paragraph[j]
         if isinstance(t, unicode):
             output += t.encode(encoding)
-            
+
         elif (t.is_break() or t.is_preformatted()):
             output += format_partial_paragraph_as_xml(paragraph[start:j],
                                                       indent, encoding)
             start = j + 1
             if t.is_break(): output += indent
             output += t.as_xml(encoding) + '\n'
-            
+
     output += format_partial_paragraph_as_xml(paragraph[start:], indent,
                                               encoding)
-    return output        
+    return output
 
 
 class Collection (list):
@@ -104,7 +104,7 @@ class Collection (list):
             s += qt.as_xml(encoding)
         s += QEL_FOOTER
         return s
-    
+
 class Author:
     def __init__ (self):
         self.text = None
@@ -119,7 +119,7 @@ class Author:
             else:
                 v += t.as_text()
         return v
-    
+
     def as_rst (self):
         v = ""
         for t in self.text:
@@ -128,7 +128,7 @@ class Author:
             else:
                 v += t.as_rst()
         return v
-    
+
     def as_wiki (self):
         v = ""
         for t in self.text:
@@ -137,7 +137,7 @@ class Author:
             else:
                 v += t.as_wiki()
         return v
-    
+
     def as_xml (self, encoding='UTF-8'):
         s = '<author'
         if self.type:
@@ -156,34 +156,34 @@ class _CollectionAttribute:
         self.text = None
         self.type = None
         self.uri = None
-        
+
     def as_text (self):
         v = ""
         for t in self.text:
             v += t.as_text()
         return v
-    
+
     def as_rst (self):
         v = ""
         for t in self.text:
             v += t.as_rst()
         return v
-    
+
     def as_wiki (self):
         v = ""
         for t in self.text:
             v += t.as_wiki()
         return v
-    
+
     def as_html (self):
         v = "<p class='%s'>" % self.tag_name
         for t in self.text:
-	    t = t.as_html()
-	    if isinstance(t, unicode):
-	        t = t.encode('iso-8859-1')
- 	    v += t
+            t = t.as_html()
+            if isinstance(t, unicode):
+                t = t.encode('iso-8859-1')
+            v += t
         return v + '\n'
-    
+
     def as_xml (self, encoding='UTF-8'):
         s = '<%s' % self.tag_name
         if self.type:
@@ -199,7 +199,7 @@ class _CollectionAttribute:
 
 class Source (_CollectionAttribute):
     tag_name = 'source'
-    
+
 class Author (_CollectionAttribute):
     tag_name = 'author'
 
@@ -211,7 +211,7 @@ class Quotation:
     id -- a string containing this quotation's ID
     date -- the date of this quotation (another string, in ISO-8601 format)
     type -- list of strings, containing various categories for this quotation
-    
+
     text -- A list of paragraphs, of minimum length 1.
             A paragraph is just a list of Text() instances, or
             subclasses of Text(), containing the text of the quotation.
@@ -225,14 +225,14 @@ class Quotation:
     as_text()    -- return a plain text version of the quotation
     as_xml()     -- return the QEL version of the quotation
     """
-    
+
     def __init__(self):
         self.id = self.date = None
-	self.text = []
+        self.text = []
         self.author = self.source = None
         self.note = []
         self.type = None
-        
+
     def __len__(self):
         "Return the number of bytes in the text of this quotation"
         size = 0
@@ -240,7 +240,7 @@ class Quotation:
             for t in p:
                 size += len(t)
         return size
-        
+
     def as_text(self, include_date=0, include_note=0):
         """Convert instance into plain text, returning a string.
         If 'include_date' is true, the date will be included on the
@@ -254,7 +254,7 @@ class Quotation:
         if len(self.text) > 1: indent = 4 * " "
         else: indent = ""
 
-	output = ""
+        output = ""
         for i in range(len(self.text)):
             paragraph = self.text[i]
 
@@ -270,11 +270,11 @@ class Quotation:
                     start = j + 1
 
             output += format_paragraph_as_text(paragraph[start:], indent)
-            
+
         para = ""
-	for i in ['author', 'source']:
+        for i in ['author', 'source']:
             value = getattr(self, i)
-	    if value is not None:
+            if value is not None:
                 v = value.as_text()
                 if para:
                     para += ', '
@@ -285,7 +285,7 @@ class Quotation:
         if include_date and self.date:
             date = iso8601.parse(self.date)
             para += ' ' + time.strftime('(%Y)', time.gmtime(date))
-            
+
         if para:
             para = "-- " + para
             lines = textwrap.wrap(para, 75,
@@ -303,14 +303,14 @@ class Quotation:
                 lines = textwrap.wrap(para, 75)
                 output += '\n'.join(lines) + '\n'
 
-	return output 
+        return output
 
-    
+
     def as_rst(self):
         """Convert instance into RestructuredText.
         """
 
-	output = ""
+        output = ""
         for i in range(len(self.text)):
             paragraph = self.text[i]
 
@@ -330,12 +330,12 @@ class Quotation:
                                                use_rst=True)
         return output
 
-    
+
     def as_wiki(self):
         """Convert instance into Wiki markup.
         """
 
-	output = ""
+        output = ""
         for i in range(len(self.text)):
             paragraph = self.text[i]
 
@@ -355,9 +355,9 @@ class Quotation:
                                                use_wiki=True) + '\n'
 
         para = ""
-	for i in ['author', 'source']:
+        for i in ['author', 'source']:
             value = getattr(self, i)
-	    if value is not None:
+            if value is not None:
                 v = value.as_wiki()
                 if i == 'author':
                     v = '[[en:%s|%s]]' % (v, v)
@@ -365,21 +365,21 @@ class Quotation:
                     para += ', '
                     v = v[:1].lower() + v[1:]
                 para += v
-            
+
         if para:
             para = "**" + para
             lines = textwrap.wrap(para, 75)
             para = '\n'.join(lines) + '\n'
             output = output.rstrip() + '\n' + para
-                
+
         return output
 
-    
+
     def as_fortune(self):
         """Convert instance into plain text and append a '%' character
         as required by the fortune(6) program, returning a string.
         """
-	return self.as_text() + '%'
+        return self.as_text() + '%'
 
     def as_html(self):
         """Convert instance into a straightforward HTML format.
@@ -390,22 +390,22 @@ class Quotation:
         XML-specific transformation to the QEL representation.
         """
 
-	output = ""
-	id = ""
-	if self.id:
-	    id = "id='%s'" % str(self.id)
+        output = ""
+        id = ""
+        if self.id:
+            id = "id='%s'" % str(self.id)
         for paragraph in self.text:
             output += "<p class='quotation' %s>" % id
-	    id = ""
+            id = ""
             for t in paragraph:
                 output += t.as_html()
             output += "</p>\n"
 
-	for i in ['author', 'source']:
+        for i in ['author', 'source']:
             value = getattr(self, i)
-	    if value is not None:
-                output += value.as_html() 
-	return output 
+            if value is not None:
+                output += value.as_html()
+        return output
 
     def as_xml(self, encoding='UTF-8'):
         """Convert instance into QEL, pretty-printing it.
@@ -418,18 +418,18 @@ class Quotation:
         if self.type is not None:
             typ = ','.join(self.type)
             typ = ' type="%s"' % escape(typ.encode(encoding))
-        
+
         output = "  <quotation%s%s%s>\n" % (id, date, typ)
         for paragraph in self.text:
             output += "    <p>\n"
             output += format_paragraph_as_xml(paragraph, 6*' ', encoding)
             output += "    </p>\n"
 
-	for i in ['author', 'source']:
+        for i in ['author', 'source']:
             value = getattr(self, i)
-	    if value is not None:
+            if value is not None:
                 output += (6*' ') + value.as_xml(encoding) + '\n'
-                
+
 
         if self.note:
             output += "    <note>\n"
@@ -438,10 +438,10 @@ class Quotation:
                 output += format_paragraph_as_xml(paragraph, 8*' ', encoding)
                 output += "      </p>\n"
             output += "    </note>\n"
-            
+
         output += "  </quotation>\n"
         return output
-    
+
 # Text and Markup and its subclasses are used to hold chunks of text;
 # instances know how to display themselves as plain text or as HTML.
 
@@ -452,29 +452,29 @@ class Text:
         if isinstance(text, str):
             text = unicode(text)
         self.text = text
-        
+
     def __str__(self):
         return self.as_text()
 
     def __len__ (self):
         return len(self.text)
-    
+
     def __repr__ (self):
-	s = repr(self.as_text())
+        s = repr(self.as_text())
         if len(s) > 25: s = s[0:15] + '...' + s[-8:]
-	return '<%s: %s>' % (self.__class__.__name__, s)
+        return '<%s: %s>' % (self.__class__.__name__, s)
 
     def as_text(self, encoding='iso-8859-1'):
         return self.text.encode(encoding)
-        
+
     as_rst = as_wiki = as_text
 
     def as_html (self):
         return escape(self.text).encode('iso-8859-1')
-        
+
     def as_xml (self, encoding='UTF-8'):
         return escape(self.text).encode(encoding)
-        
+
     def is_break(self):        return 0
     def is_plain(self):        return 1
     def is_preformatted(self): return 0
@@ -483,8 +483,8 @@ class Text:
     def __add__(self, val):
         if isinstance(val, str):
             val = unicode(val, 'iso-8859-1')
-	newtext = self.text + val
-	return Text(newtext)
+        newtext = self.text + val
+        return Text(newtext)
 
     def startswith (self, S):
         return self.text.startswith(S)
@@ -505,9 +505,9 @@ class Markup (object):
     """
 
     text_char = ""
-    wiki_delim = "" 
+    wiki_delim = ""
     xml_tag = html_tag = ""
-    
+
     def __init__(self, text=None):
         self.children = []
         if text:
@@ -521,18 +521,18 @@ class Markup (object):
         for c in self.children:
             size += len(c)
         return size
-    
+
     def __repr__ (self):
-	s = repr(self.as_text())
+        s = repr(self.as_text())
         if len(s) > 25: s = s[0:15] + '...' + s[-8:]
-	return '<%s: %s>' % (self.__class__.__name__, s)
+        return '<%s: %s>' % (self.__class__.__name__, s)
 
     def as_text (self, encoding='iso-8859-1'):
         text = ""
         for t in self.children:
             text += t.as_text(encoding)
         return self.text_char + text + self.text_char
-    
+
     def as_rst (self, encoding='iso-8859-1'):
         text = ""
         for t in self.children:
@@ -541,7 +541,7 @@ class Markup (object):
         if self.xml_tag:
             text = ':%s:%s' % (self.xml_tag, text)
         return text
-        
+
     def as_wiki (self, encoding='iso-8859-1'):
         text = ""
         for t in self.children:
@@ -553,7 +553,7 @@ class Markup (object):
                 start = end = self.wiki_delim
             text = '%s%s%s' % (start, text, end)
         return text
-        
+
     def as_html (self):
         text = ""
         for t in self.children:
@@ -570,7 +570,7 @@ class Markup (object):
         if self.xml_tag:
             text = "<%s>%s</%s>" % (self.xml_tag, text, self.xml_tag)
         return text
-            
+
     def is_break(self):        return 0
     def is_plain(self):        return 1
     def is_preformatted(self): return 0
@@ -599,7 +599,7 @@ class Acronym (Markup):
     text_char = ""
     wiki_delim = ""
     xml_tag = html_tag = "acronym"
-    
+
 class CitedText (Markup):
     "Text inside <cite>...</cite>"
 
@@ -624,10 +624,10 @@ class EmphasizedText (Markup):
 
     def is_plain(self):        return 0
     as_rst = Markup.as_text
-    
+
 class ForeignText (Markup):
     "Foreign words, from Latin or French or whatever."
-    
+
     text_char = "_"
     wiki_delim = ("<i>", "</i>")
     html_tag  = "i"
@@ -646,7 +646,7 @@ class PreformattedText (Markup):
 
     def as_text (self, encoding='iso-8859-1'):
         text = super(PreformattedText, self).as_text(encoding)
-        text = text.strip() 
+        text = text.strip()
         return text
 
     def as_rst (self, encoding='iso-8859-1'):
@@ -654,7 +654,7 @@ class PreformattedText (Markup):
         text = text.strip()
         text = '\n\n::\n'+ text.replace('\n', '\n    ') + '\n\n'
         return text
-    
+
 
 class QuotedText (Markup):
     text_char = '"'
@@ -667,13 +667,13 @@ class QuotedText (Markup):
 class Break (Markup):
     text = ""
     children = ()
-    
+
     def __repr__(self):
-	return '<%s>' % (self.__class__.__name__)
+        return '<%s>' % (self.__class__.__name__)
 
     def as_text(self): return ""
     as_rst = as_wiki = as_text
-    
+
     def as_html(self): return "<br />"
     def as_xml(self, encoding):
         return "<br />"
@@ -681,4 +681,3 @@ class Break (Markup):
     def is_break(self):        return 1
     def is_plain(self):        return 0
     def is_preformatted(self): return 0
-

@@ -9,7 +9,7 @@ import StringIO, codecs, sys, string, re
 from xml.dom import pulldom
 
 from qel import QEL_NS, RDF_NS
-from qel import quotation 
+from qel import quotation
 
 __all__ = ['ParseError', 'parse']
 
@@ -26,7 +26,7 @@ def simplify(text_list, trim_ends = True):
             t2.text = t1.text + t2.text
             text_list[i-1] = None
             i += 1
-    
+
     # Remove Nones
     text_list = [obj for obj in text_list if obj is not None]
 
@@ -72,7 +72,7 @@ def simplify(text_list, trim_ends = True):
             if len(first) == 0:
                 del text_list[0]
                 changed = True
- 
+
     changed = True
     while trim_ends and len(text_list) and changed:
         changed = False
@@ -97,7 +97,7 @@ def _ignore_text (stream):
         if token in [pulldom.START_ELEMENT, pulldom.END_ELEMENT,
                      pulldom.END_DOCUMENT]:
             return token, node
-        
+
 def _collect_text (stream, end_tag):
     """_collect_text(DOMStream, str) : string
     Accumulate the plain text up until the specified end tag.
@@ -121,7 +121,7 @@ for klass in (quotation.Abbreviation, quotation.Acronym,
               quotation.EmphasizedText, quotation.ForeignText,
               quotation.PreformattedText,
               quotation.QuotedText):
-        horiz_tags[ klass.xml_tag ] = klass
+    horiz_tags[ klass.xml_tag ] = klass
 
 def _process_text (nodelist, do_simplify=True):
     L = []
@@ -147,7 +147,7 @@ def _process_text (nodelist, do_simplify=True):
     if do_simplify:
         L = simplify(L)
     return L
-        
+
 def _make_para (node):
     assert node.tagName == 'p', "Paragraph tag expected"
     return _process_text(node.childNodes)
@@ -164,7 +164,7 @@ def _parse_quotation (stream, token, node):
             token, node = stream.next()
         except StopIteration:
             return None
-    
+
     stream.expandNode(node)
 
     qt = quotation.Quotation()
@@ -173,7 +173,7 @@ def _parse_quotation (stream, token, node):
     qt.type = node.getAttributeNS(None, 'type') or None
     if qt.type is not None:
         qt.type = map(string.strip, qt.type.split(','))
-        
+
     for c in node.childNodes:
         if c.nodeType == c.ELEMENT_NODE:
             name = c.tagName
@@ -195,12 +195,12 @@ def _parse_quotation (stream, token, node):
                     s.type = map(string.strip, s.type.split(','))
                 s.uri = c.getAttributeNS(RDF_NS, 'resource') or None
                 s.text = _process_text(c.childNodes)
-                
+
             elif name == 'note':
                 for c2 in c.childNodes:
                     if (c2.nodeType == c2.ELEMENT_NODE):
                         qt.note.append(_make_para(c2))
-                    
+
     return qt
 
 
@@ -254,5 +254,5 @@ def parse(input):
             break
         coll.append(qt)
         token, node = stream.next()
-        
+
     return coll

@@ -1,50 +1,50 @@
 # Test suite for the Quotation class
 
 import unittest
-from qel import quotation 
+from qel import quotation
 
 class QuotationTest(unittest.TestCase):
     "Test of the Quotation class"
     def setUp(self):
-	self.qt = quotation.Quotation()
+        self.qt = quotation.Quotation()
 
     def tearDown(self):
-	del self.qt
+        del self.qt
 
     def test_xmlconv(self):
-	"Conversion to XML"
+        "Conversion to XML"
 
-	# Empty quotation
-	self.assertEquals(self.qt.as_xml(),
-			  "  <quotation>\n  </quotation>\n")
-	self.assertEquals(self.qt.as_xml("UTF-8"),
-			  "  <quotation>\n  </quotation>\n")
+        # Empty quotation
+        self.assertEquals(self.qt.as_xml(),
+                          "  <quotation>\n  </quotation>\n")
+        self.assertEquals(self.qt.as_xml("UTF-8"),
+                          "  <quotation>\n  </quotation>\n")
 
-	# Add an id and a date
-	self.qt.id = "idval" ; self.qt.date = "2000-01-01"
-	self.qt.type = ['funny', 'silly']
-	self.assertEquals(self.qt.as_xml(),
-		       '  <quotation id="idval" date="2000-01-01" type="funny,silly">\n'
-		       '  </quotation>\n')
-	# Test quoting
-	self.qt.id = "&<>" ; self.qt.date = "&<>"
-	self.qt.type = None
-	self.assertEquals(self.qt.as_xml(),
-		       '  <quotation id="&amp;&lt;&gt;" date="&amp;&lt;&gt;">\n'
-		       '  </quotation>\n')
+        # Add an id and a date
+        self.qt.id = "idval" ; self.qt.date = "2000-01-01"
+        self.qt.type = ['funny', 'silly']
+        self.assertEquals(self.qt.as_xml(),
+                       '  <quotation id="idval" date="2000-01-01" type="funny,silly">\n'
+                       '  </quotation>\n')
+        # Test quoting
+        self.qt.id = "&<>" ; self.qt.date = "&<>"
+        self.qt.type = None
+        self.assertEquals(self.qt.as_xml(),
+                       '  <quotation id="&amp;&lt;&gt;" date="&amp;&lt;&gt;">\n'
+                       '  </quotation>\n')
 
-	# Test minimal quotatation with 1 paragraph
-	self.qt.id = self.qt.date = None
-	self.qt.text = [ [quotation.Text('para1')] ]
-	self.assertEquals(self.qt.as_xml(),
+        # Test minimal quotatation with 1 paragraph
+        self.qt.id = self.qt.date = None
+        self.qt.text = [ [quotation.Text('para1')] ]
+        self.assertEquals(self.qt.as_xml(),
                            """  <quotation>
     <p>
       para1
     </p>
   </quotation>
 """)
-	self.assertEquals(self.qt.as_text(),
-			  """para1\n""")
+        self.assertEquals(self.qt.as_text(),
+                          """para1\n""")
         self.assertEquals(len(self.qt), 5)
 
         # Test a break
@@ -114,7 +114,7 @@ class QuotationTest(unittest.TestCase):
 note
 """)
 
-class TestText(unittest.TestCase):                             
+class TestText(unittest.TestCase):
     def test_text(self):
         "Text class and its subclasses"
 
@@ -152,7 +152,7 @@ class TestText(unittest.TestCase):
             ]:
             t = klass('body')
             self.assertEquals(t.as_text(), text)
-            self.assertEquals(t.as_html(), html)            
+            self.assertEquals(t.as_html(), html)
 
 class CollectionTest(unittest.TestCase):
     def setUp(self):
@@ -181,6 +181,6 @@ class CollectionTest(unittest.TestCase):
 </quotations>
 """)
 
-        
+
 if __name__ == "__main__":
     unittest.main()
