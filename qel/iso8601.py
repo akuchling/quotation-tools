@@ -19,7 +19,7 @@ def parse(s):
     since the epoch."""
     m = __datetime_rx.match(s)
     if m is None or m.group() != s:
-        raise ValueError, "unknown or illegal ISO-8601 date format: " + `s`
+        raise ValueError("unknown or illegal ISO-8601 date format: %r" % s)
     gmt = __extract_date(m) + __extract_time(m) + (0, 0, 0)
     return time.mktime(gmt) + __extract_tzd(m) - time.timezone
 
@@ -29,9 +29,9 @@ def parse_timezone(timezone):
     relative to UTC."""
     m = __tzd_rx.match(timezone)
     if not m:
-        raise ValueError, "unknown timezone specifier: " + `timezone`
+        raise ValueError("unknown timezone specifier: %r" % timezone)
     if m.group() != timezone:
-        raise ValueError, "unknown timezone specifier: " + `timezone`
+        raise ValueError("unknown timezone specifier: %r" % timezone)
     return __extract_tzd(m)
 
 
@@ -110,13 +110,13 @@ def __extract_date(m):
     else:
         month = int(month)
         if not 1 <= month <= 12:
-            raise ValueError, "illegal month number: " + m.group("month")
+            raise ValueError("illegal month number: " + m.group("month"))
         else:
             day = m.group("day")
             if day:
                 day = int(day)
                 if not 1 <= day <= 31:
-                    raise ValueError, "illegal day number: " + m.group("day")
+                    raise ValueError("illegal day number: " + m.group("day"))
             else:
                 day = 1
     return year, month, day
@@ -130,15 +130,15 @@ def __extract_time(m):
         return 0, 0, 0
     hours = int(hours)
     if not 0 <= hours <= 23:
-        raise ValueError, "illegal hour number: " + m.group("hours")
+        raise ValueError("illegal hour number: " + m.group("hours"))
     minutes = int(m.group("minutes"))
     if not 0 <= minutes <= 59:
-        raise ValueError, "illegal minutes number: " + m.group("minutes")
+        raise ValueError("illegal minutes number: " + m.group("minutes"))
     seconds = m.group("seconds")
     if seconds:
         seconds = float(seconds)
         if not 0 <= seconds <= 60:
-            raise ValueError, "illegal seconds number: " + m.group("seconds")
+            raise ValueError("illegal seconds number: " + m.group("seconds"))
         # Python 2.3 requires seconds to be an integer
         seconds=int(seconds)
     else:

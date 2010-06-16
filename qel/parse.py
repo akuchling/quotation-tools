@@ -111,9 +111,9 @@ def _collect_text (stream, end_tag):
             if node.tagName == end_tag:
                 return text
             else:
-                raise ParseError, "Unexpected end tag: </%s>" % node.tagName
+                raise ParseError("Unexpected end tag: </%s>" % node.tagName)
         elif token == pulldom.START_ELEMENT:
-            raise ParseError, "Unexpected start tag: <%s>" % node.tagName
+            raise ParseError("Unexpected start tag: <%s>" % node.tagName)
 
 horiz_tags = {}
 for klass in (quotation.Abbreviation, quotation.Acronym,
@@ -139,7 +139,7 @@ def _process_text (nodelist, do_simplify=True):
             elif name == 'br':
                 L.append(quotation.Break())
             else:
-                raise ParseError, "Unexpected element: <%s>" % name
+                raise ParseError("Unexpected element: <%s>" % name)
         else:
             # Skip comments, PIs, and other junk
             pass

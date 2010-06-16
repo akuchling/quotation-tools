@@ -1,8 +1,11 @@
 
 Things to do:
 
-Get code stable again
+Convert test suite to Python unittest
 
-Write a web-based editor
+Increase test coverage.
 
-Use RDF for indexing quotations
+Try it with Python3
+
+Consider whether to use ElementTree.
+
