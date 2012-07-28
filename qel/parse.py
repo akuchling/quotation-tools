@@ -130,7 +130,7 @@ def _process_text (nodelist, do_simplify=True):
             L.append(quotation.Text(node.nodeValue))
         elif node.nodeType == node.ELEMENT_NODE:
             name = node.tagName
-            if horiz_tags.has_key(name):
+            if name in horiz_tags:
                 klass = horiz_tags[name]
                 inst = klass()
                 do_s = not isinstance(inst, quotation.PreformattedText)
