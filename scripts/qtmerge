@@ -64,7 +64,7 @@ def main():
                         # We're in non-strict mode, so we need to generate
                         # a new unique ID for this quotation.
                         while 1:
-                            new_id = 'id' + str(int(time.time()))
+                            new_id = 'q' + str(int(time.time()))
                             if new_id not in ids:
                                 break
 
