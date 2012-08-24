@@ -31,7 +31,7 @@ def simplify(text_list, trim_ends = True):
     for i in range(1, len(text_list)):
         t1 = text_list[i-1]
         t2 = text_list[i]
-        if t1.__class__ == t2.__class__ == quotation.Text:
+        if isinstance(t1, quotation.Text) and isinstance(t2, quotation.Text):
             t2.text = t1.text + t2.text
             text_list[i-1] = None
             i += 1
