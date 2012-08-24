@@ -32,21 +32,21 @@ def format_paragraph_as_text (paragraph, indent,
         output = '\n'.join(lines) + '\n'
     return output
 
-def format_partial_paragraph_as_xml(paragraph, indent, encoding):
+def format_partial_paragraph_as_xml(paragraph, indent):
     """Generate pretty-printed XML output for a portion of a paragraph.
     Neither Break nor PreformattedText instances should be in the
     'paragraph' list.
     """
     output = ""
     for t in paragraph:
-        output += t.as_xml(encoding)
+        output += t.as_xml()
     wrap = textwrap.TextWrapper(70, initial_indent=indent)
     wrap.wordsep_re = re.compile(r'(\s+)')
     lines = wrap.wrap(output)
     output = '\n'.join(lines) + '\n'
     return output
 
-def format_paragraph_as_xml(paragraph, indent, encoding):
+def format_paragraph_as_xml(paragraph, indent):
     """Generate pretty-printed XML output for a paragraph.
     It will split the paragraph apart at Break and PreformattedText
     instances.
@@ -56,17 +56,16 @@ def format_paragraph_as_xml(paragraph, indent, encoding):
     for j in range(len(paragraph)):
         t = paragraph[j]
         if isinstance(t, str):
-            output += t.encode(encoding)
+            output += t
 
         elif (t.is_break() or t.is_preformatted()):
             output += format_partial_paragraph_as_xml(paragraph[start:j],
-                                                      indent, encoding)
+                                                      indent)
             start = j + 1
             if t.is_break(): output += indent
-            output += t.as_xml(encoding) + '\n'
+            output += t.as_xml() + '\n'
 
-    output += format_partial_paragraph_as_xml(paragraph[start:], indent,
-                                              encoding)
+    output += format_partial_paragraph_as_xml(paragraph[start:], indent)
     return output
 
 
@@ -82,26 +81,30 @@ class Collection (list):
         self.license = None
 
     def as_xml (self, encoding="UTF-8"):
+        """(str): bytes
+
+        Return the XML representation of the collection.
+        """
         from qel import QEL_HEADER, QEL_FOOTER
         s = QEL_HEADER % encoding
         if self.title:
-            s += '  <title>%s</title>\n' % escape(self.title).encode(encoding)
+            s += '  <title>%s</title>\n' % escape(self.title)
         if self.editor:
-            s += '  <editor>%s</editor>\n' % escape(self.editor).encode(encoding)
+            s += '  <editor>%s</editor>\n' % escape(self.editor)
         if self.description:
-            s += '  <description>%s</description>\n' % escape(self.description).encode(encoding)
+            s += '  <description>%s</description>\n' % escape(self.description)
         if self.copyright:
-            s += '  <copyright>%s</copyright>\n' % escape(self.copyright).encode(encoding)
+            s += '  <copyright>%s</copyright>\n' % escape(self.copyright)
         if self.license:
             s += '  <license>'
             for t in self.license:
                 if isinstance(t, str):
-                    s += escape(t).encode(encoding)
+                    s += escape(t)
                 else:
-                    s += t.as_xml(encoding)
+                    s += t.as_xml()
             s += '\n  </license>\n'
         for qt in self:
-            s += qt.as_xml(encoding)
+            s += qt.as_xml()
         s += QEL_FOOTER
         return s
 
@@ -138,15 +141,15 @@ class Author:
                 v += t.as_wiki()
         return v
 
-    def as_xml (self, encoding='UTF-8'):
+    def as_xml (self):
         s = '<author'
         if self.type:
-            s += ' type="%s"' % self.type.encode(encoding)
+            s += ' type="%s"' % self.type
         if self.uri:
-            s += ' rdf:resource="%s"' % self.uri.encode(encoding)
+            s += ' rdf:resource="%s"' % self.uri
         s += '>'
         for t in self.text:
-            s += t.as_xml(encoding)
+            s += t.as_xml()
         s += '</author>'
         return s
 
@@ -179,21 +182,19 @@ class _CollectionAttribute:
         v = "<p class='%s'>" % self.tag_name
         for t in self.text:
             t = t.as_html()
-            if isinstance(t, str):
-                t = t.encode('iso-8859-1')
             v += t
         return v + '\n'
 
-    def as_xml (self, encoding='UTF-8'):
+    def as_xml (self):
         s = '<%s' % self.tag_name
         if self.type:
             typ = ','.join(self.type)
-            s += ' type="%s"' % typ.encode(encoding)
+            s += ' type="%s"' % typ
         if self.uri:
-            s += ' rdf:resource="%s"' % self.uri.encode(encoding)
+            s += ' rdf:resource="%s"' % self.uri
         s += '>'
         for t in self.text:
-            s += t.as_xml(encoding)
+            s += t.as_xml()
         s += '</%s>' % self.tag_name
         return s
 
@@ -407,35 +408,35 @@ class Quotation:
                 output += value.as_html()
         return output
 
-    def as_xml(self, encoding='UTF-8'):
+    def as_xml(self):
         """Convert instance into QEL, pretty-printing it.
         """
         id = date = typ = ""
         if self.id is not None:
-            id = ' id="%s"' % escape(self.id.encode(encoding))
+            id = ' id="%s"' % escape(self.id)
         if self.date is not None:
-            date = ' date="%s"' % escape(self.date.encode(encoding))
+            date = ' date="%s"' % escape(self.date)
         if self.type is not None:
             typ = ','.join(self.type)
-            typ = ' type="%s"' % escape(typ.encode(encoding))
+            typ = ' type="%s"' % escape(typ)
 
         output = "  <quotation%s%s%s>\n" % (id, date, typ)
         for paragraph in self.text:
             output += "    <p>\n"
-            output += format_paragraph_as_xml(paragraph, 6*' ', encoding)
+            output += format_paragraph_as_xml(paragraph, 6*' ')
             output += "    </p>\n"
 
         for i in ['author', 'source']:
             value = getattr(self, i)
             if value is not None:
-                output += (6*' ') + value.as_xml(encoding) + '\n'
+                output += (6*' ') + value.as_xml() + '\n'
 
 
         if self.note:
             output += "    <note>\n"
             for paragraph in self.note:
                 output += "      <p>\n"
-                output += format_paragraph_as_xml(paragraph, 8*' ', encoding)
+                output += format_paragraph_as_xml(paragraph, 8*' ')
                 output += "      </p>\n"
             output += "    </note>\n"
 
@@ -449,8 +450,6 @@ class Text:
     """A chunk of plain text."""
 
     def __init__(self, text=""):
-        if isinstance(text, str):
-            text = str(text)
         self.text = text
 
     def __str__(self):
@@ -464,16 +463,16 @@ class Text:
         if len(s) > 25: s = s[0:15] + '...' + s[-8:]
         return '<%s: %s>' % (self.__class__.__name__, s)
 
-    def as_text(self, encoding='iso-8859-1'):
-        return self.text.encode(encoding)
+    def as_text(self):
+        return self.text
 
     as_rst = as_wiki = as_text
 
     def as_html (self):
-        return escape(self.text).encode('iso-8859-1')
+        return escape(self.text)
 
-    def as_xml (self, encoding='UTF-8'):
-        return escape(self.text).encode(encoding)
+    def as_xml (self):
+        return escape(self.text)
 
     def is_break(self):        return 0
     def is_plain(self):        return 1
@@ -481,8 +480,6 @@ class Text:
 
     # We need to allow adding a string to Text instances.
     def __add__(self, val):
-        if isinstance(val, str):
-            val = str(val, 'iso-8859-1')
         newtext = self.text + val
         return Text(newtext)
 
@@ -527,25 +524,25 @@ class Markup (object):
         if len(s) > 25: s = s[0:15] + '...' + s[-8:]
         return '<%s: %s>' % (self.__class__.__name__, s)
 
-    def as_text (self, encoding='iso-8859-1'):
+    def as_text (self):
         text = ""
         for t in self.children:
-            text += t.as_text(encoding)
+            text += t.as_text()
         return self.text_char + text + self.text_char
 
-    def as_rst (self, encoding='iso-8859-1'):
+    def as_rst (self):
         text = ""
         for t in self.children:
-            text += t.as_rst(encoding)
+            text += t.as_rst()
         text = '`%s`' % text
         if self.xml_tag:
             text = ':%s:%s' % (self.xml_tag, text)
         return text
 
-    def as_wiki (self, encoding='iso-8859-1'):
+    def as_wiki (self):
         text = ""
         for t in self.children:
-            text += t.as_wiki(encoding)
+            text += t.as_wiki()
         if text:
             if isinstance(self.wiki_delim, tuple):
                 start, end = self.wiki_delim
@@ -563,9 +560,9 @@ class Markup (object):
             text = "<%s>%s</%s>" % (self.html_tag, text, self.html_tag)
         return text
 
-    def as_xml (self, encoding='utf-8'):
+    def as_xml (self):
         for t in self.children:
-            text = t.as_xml(encoding)
+            text = t.as_xml()
 
         if self.xml_tag:
             text = "<%s>%s</%s>" % (self.xml_tag, text, self.xml_tag)
@@ -644,13 +641,13 @@ class PreformattedText (Markup):
 
     def is_preformatted(self): return 1
 
-    def as_text (self, encoding='iso-8859-1'):
-        text = super(PreformattedText, self).as_text(encoding)
+    def as_text (self):
+        text = super(PreformattedText, self).as_text()
         text = text.strip()
         return text
 
-    def as_rst (self, encoding='iso-8859-1'):
-        text = super(PreformattedText, self).as_text(encoding)
+    def as_rst (self):
+        text = super(PreformattedText, self).as_text()
         text = text.strip()
         text = '\n\n::\n'+ text.replace('\n', '\n    ') + '\n\n'
         return text
@@ -675,7 +672,7 @@ class Break (Markup):
     as_rst = as_wiki = as_text
 
     def as_html(self): return "<br />"
-    def as_xml(self, encoding):
+    def as_xml(self):
         return "<br />"
 
     def is_break(self):        return 1

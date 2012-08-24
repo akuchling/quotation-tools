@@ -17,8 +17,6 @@ class QuotationTest(unittest.TestCase):
         # Empty quotation
         self.assertEquals(self.qt.as_xml(),
                           "  <quotation>\n  </quotation>\n")
-        self.assertEquals(self.qt.as_xml("UTF-8"),
-                          "  <quotation>\n  </quotation>\n")
 
         # Add an id and a date
         self.qt.id = "idval" ; self.qt.date = "2000-01-01"
@@ -124,11 +122,6 @@ class TestText(unittest.TestCase):
         self.assertEquals(t.as_html(), 'content')
         self.assertEquals(t.as_xml(), 'content')
         self.assertEquals(t.as_wiki(), 'content')
-
-    def test_text_encoding(self):
-        t = quotation.Text(u'Montr\xe9al')
-        self.assertEquals(t.as_xml("UTF-8"), 'Montr\xc3\xa9al')
-        self.assertEquals(t.as_xml("Latin-1"), 'Montr\xe9al')
 
     def test_text_quoting(self):
         # Test handling of quoting

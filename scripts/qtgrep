@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 
+#
 # qtgrep
 # Copyright (C) 2002 A.M. Kuchling
 #
@@ -18,6 +18,8 @@
 
 import sys, re, getopt
 import qel
+from qel.parse import parse
+from qel.quotation import Collection, Text
 
 __revision__ = "$Id: qtgrep,v 1.5 2002/09/29 23:51:02 akuchling Exp $"
 
@@ -28,12 +30,19 @@ If no filenames are provided, standard input will be read.
 def is_matching(pattern, quotation):
     """Return true if some of the text in 'quotation' matches
     the compiled regex object 'pattern'."""
-    
-    for para in quotation.text:
-        for t in para:
-            if pattern.search(t.text):
-                return 1
-    return 0
+
+    queue = quotation.text[:]
+    while len(queue):
+        obj = queue.pop(0)
+        if isinstance(obj, list):
+            queue = obj + queue
+        elif isinstance(obj, Text):
+            if pattern.search(obj.text):
+                return True
+        else:
+            queue += list(obj.children)
+
+    return False
 
 def filename(file):
     """Return the file's name; 'file' is either a string which is just
@@ -41,56 +50,53 @@ def filename(file):
     """
     if file is sys.stdin: return '<stdin>'
     else: return file
-    
+
 def main():
     # Default flags
     count = 0                           # Just display a count of matches
-    
+
     # Process the command-line arguments
     opts, args = getopt.getopt(sys.argv[1:], 'c',
-			       ['count'] )
+                               ['count'] )
     for opt, arg in opts:
-        if opt in ['-c', '--count']: count=1  
+        if opt in ['-c', '--count']: count=1
 
     if len(args) < 1:
         print(__doc__)
         sys.exit(1)
-        
+
     expr = args[0] ; args = args[1:]
-    pattern = re.compile(expr)
-    
+    pattern = re.compile(expr, re.IGNORECASE)
+
     # Loop over the input files; use sys.stdin if no files are specified
     if len(args) == 0: args = [sys.stdin]
     qtlist = []
 
-    encoding = 'UTF-8'        
-    if not count:
-        print(qel.QEL_HEADER % encoding)
-
+    encoding = 'UTF-8'
+    coll = Collection()
 
     for file in args:
-	if isinstance(file, str):
+        if isinstance(file, str):
             input = open(file, 'r')
-	else:
+        else:
             input = file
-        qtlist = qel.parse.parse(input)
+        qtlist = parse(input)
         matches = 0
         for qt in qtlist:
             if is_matching(pattern, qt):
-                matches += 1
                 if count:
-                    pass
+                    matches += 1
                 else:
                     # Default is to print the quotations
-                    print(qt.as_xml(encoding))
+                    coll.append(qt)
 
         # File completed
         if count:
             print(filename(file),':',matches)
-            
+	    
     if not count:
-        print(qel.QEL_FOOTER)
-        
+        xml = coll.as_xml(encoding='UTF-8')
+        sys.stdout.buffer.write(xml.encode('UTF-8'))
 
 
 if __name__ == '__main__':
