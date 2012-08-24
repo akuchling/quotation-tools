@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# 
+#!/usr/bin/env python3
+#
 # qtformat
 # Copyright (C) 2002 A.M. Kuchling
 #
@@ -31,10 +31,10 @@ Output formats:
   -t or --text      Produce plain text output
   -w or --wiki      Produce Wikiquote.org-style Wiki output
   -x or --xml       Produce pretty-printed QEL output
-Other options: 
-  -m N or --max N   Suppress quotations longer than N lines; 
+Other options:
+  -m N or --max N   Suppress quotations longer than N lines;
                     defaults to 0, which suppresses no quotations at all.
-  -r or --randomize Output quotations in random order                      
+  -r or --randomize Output quotations in random order
   -s N or --split N Divide the output into chunks of roughly N kilobytes;
                     the division is indicated by a line containing just
                     "NEW FILE 1/10"
@@ -51,47 +51,47 @@ def main():
     encoding = 'UTF-8'
     # Process the command-line arguments
     opts, args = getopt.getopt(sys.argv[1:], 'fhtwxm:Rrs:',
-			       ['fortune', 'html', 'text', 'wiki', 'xml',
-				'max=', 'help', 'randomize', 'rst', 'split='] )
+                               ['fortune', 'html', 'text', 'wiki', 'xml',
+                                'max=', 'help', 'randomize', 'rst', 'split='] )
     # Set defaults
-    maxlength = 0 ; method = 'as_fortune' 
+    maxlength = 0 ; method = 'as_fortune'
     randomize = 0
     split_size = None
-    
+
     # Process arguments
     for opt, arg in opts:
-	if opt in ['-f', '--fortune']: 
-	    method='as_fortune'
-	elif opt in ['-h', '--html']: 
-	    method = 'as_html'
-	elif opt in ['-R', '--rst']: 
-	    method = 'as_rst'
-	elif opt in ['-t', '--text']: 
-	    method = 'as_text'
-	elif opt in ['-w', '--wiki']: 
-	    method = 'as_wiki'
-	elif opt in ['-x', '--xml']: 
-	    method = 'as_xml'
-	elif opt in ['-m', '--max']: 
-	    maxlength = string.atoi(arg)
-	elif opt in ['-r', '--randomize']:
+        if opt in ['-f', '--fortune']:
+            method='as_fortune'
+        elif opt in ['-h', '--html']:
+            method = 'as_html'
+        elif opt in ['-R', '--rst']:
+            method = 'as_rst'
+        elif opt in ['-t', '--text']:
+            method = 'as_text'
+        elif opt in ['-w', '--wiki']:
+            method = 'as_wiki'
+        elif opt in ['-x', '--xml']:
+            method = 'as_xml'
+        elif opt in ['-m', '--max']:
+            maxlength = string.atoi(arg)
+        elif opt in ['-r', '--randomize']:
             randomize = 1
-	elif opt in ['-s', '--split']:
+        elif opt in ['-s', '--split']:
             split_size = int(arg) * 1024
-	elif opt == '--help': 
-	    print __doc__ ; sys.exit(0)
+        elif opt == '--help':
+            print(__doc__) ; sys.exit(0)
 
     # Loop over the input files; use sys.stdin if no files are specified
     if len(args) == 0: args = [sys.stdin]
     qtcoll = None
     for file in args:
         if isinstance(file, str): input = open(file, 'r')
-	else: input = file
+        else: input = file
         qtcoll2 = parse.parse(input)
         if maxlength!=0:
-            qtcoll2 = filter(lambda qt, maxlength=maxlength, method=method, :
+            qtcoll2 = list(filter(lambda qt, maxlength=maxlength, method=method, :
                              count_lines(qt, method) <= maxlength,
-                             qtcoll2)
+                             qtcoll2))
         if qtcoll is None:
             qtcoll = qtcoll2
         else:
@@ -106,7 +106,7 @@ def main():
     if method == 'as_xml':
         sys.stdout.write(qtcoll.as_xml(encoding))
         return
-    
+
     # If we're splitting the output into several files, count up the
     # total number of files
     current_file_size = 0
@@ -121,22 +121,21 @@ def main():
     # Output the quotations
     current_file_size = 0
     if split_size is not None:
-        print "NEW FILE 1/%i" % num_files
+        print("NEW FILE 1/%i" % num_files)
         cur_file = 1
 
     for i in range(len(qtcoll)):
         quote = qtcoll[i]
         meth = getattr(quote, method)
-        print meth()
+        print(meth())
         current_file_size += len(quote)
         if (split_size is not None and
             current_file_size > split_size and
             i < len(qtcoll) - 1 ):
             current_file_size = current_file_size % split_size
             cur_file += 1
-            print "NEW FILE %i/%i" % (cur_file, num_files)
+            print("NEW FILE %i/%i" % (cur_file, num_files))
     # We're done!
 
 if __name__ == '__main__':
     main()
-    

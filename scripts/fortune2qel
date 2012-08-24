@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# 
+#!/usr/bin/env python3
+#
 # fortune2qel
 # Copyright (C) 2002 A.M. Kuchling
 #
@@ -7,7 +7,7 @@
 #
 # This script doesn't try to be complete, since the files distributed
 # with fortune include all sorts of wackiness.  It'll be hopeless on
-# things like ASCII art, and limits itself to quotations that 
+# things like ASCII art, and limits itself to quotations that
 # appear to have an attribution.  This is determined by looking for
 # final lines that start with '\s+--'; the contents of this line and
 # any following lines are assumed to be the attribution, which will be
@@ -36,7 +36,7 @@ __revision__ = "$Id: fortune2qel,v 1.4 2002/09/29 23:50:44 akuchling Exp $"
 import sys, getopt
 
 __doc__ = """Usage: %s [file1 file2 ...]
-If no filenames are provided, standard input will be read.  
+If no filenames are provided, standard input will be read.
 """ % sys.argv[0]
 
 def read_quotation(input):
@@ -69,7 +69,7 @@ def convert_formatting(S):
     # Look for some character sequences used to represent accented
     # characters.
     S = S.replace('^\x08e', '&ecirc;')
-    
+
     # Strip out ^H characters used to do underlining
     while '\x08' in S:
         S = re.sub( '.\x08', '', S)
@@ -77,7 +77,7 @@ def convert_formatting(S):
     # Strip out bell characters, too.
     S = S.replace('\x07', '')
 
-    # Insert markup 
+    # Insert markup
     S = re.sub( '[*](.*?)[*]', r'<em>\1</em>', S)
 
     return S
@@ -86,8 +86,8 @@ def convert_formatting(S):
 def convert_quotation(L):
     """Convert a quotation represented as a list of lines into QEL and
     print it to stdout.
-    """  
-    
+    """
+
     # First, look for an attribution.  This is found by looking for
     # the last line that starts with some whitespace and the
     # characters '--'.
@@ -125,57 +125,55 @@ def convert_quotation(L):
     # whitespace.
     paragraphs = [ normalize_whitespace( ' '.join(para) )
                    for para in paragraphs ]
-    paragraphs = filter(None, paragraphs)
-    
+    paragraphs = [_f for _f in paragraphs if _f]
+
     # If there are no paragraphs at all, presumably the quotation is
     # malformed in some way, so we return without printing anything.
     if len(paragraphs) == 0:
         return
-    
+
     # Some single-paragraph quotations are surrounded by quotation
     # marks, which is silly; this will remove them if present.
     if (len(paragraphs) == 1 and
         paragraphs[0][0] == paragraphs[0][-1] == '"'):
         paragraphs[0] = paragraphs[0][1:-1]
-    
+
     # Output a QEL <quotation> element containing this quote.
-    print '  <quotation>'
+    print('  <quotation>')
     for para in paragraphs:
         para = saxutils.escape(para)
-	para = convert_formatting(para)
-        print '    <p>%s</p>' % para
+        para = convert_formatting(para)
+        print('    <p>%s</p>' % para)
 
     # Ensure the first character of the attribution is capitalized.
     attribution = attribution[0].upper() + attribution[1:]
     attribution = saxutils.escape(attribution)
 
-    print '    <source>%s</source>' % convert_formatting(attribution)
-    print '  </quotation>\n\n'
-                           
+    print('    <source>%s</source>' % convert_formatting(attribution))
+    print('  </quotation>\n\n')
+
 
 def main():
     args = sys.argv[1:]
     if len(args) == 0: args = [sys.stdin]
 
     encoding = 'ISO-8859-1'
-    print qel.QEL_HEADER % encoding
-    
+    print(qel.QEL_HEADER % encoding)
+
     for file in args:
-	if isinstance(file, str): 
-	    input = open(file, 'r')
-	else: 
-	    input = file
+        if isinstance(file, str):
+            input = open(file, 'r')
+        else:
+            input = file
 
         while 1:
             quote = read_quotation(input)
             if quote is None:
                 break
-            
+
             convert_quotation( quote )
 
-    print qel.QEL_FOOTER
-        
+    print(qel.QEL_FOOTER)
+
 if __name__ == '__main__':
     main()
-
-    
