@@ -19,7 +19,7 @@
 # GNU General Public License for more details.
 
 import sys, getopt
-from qel import parse, quotation, QEL_HEADER
+from qel import parse, quotation
 
 __revision__ = "$Id: qtgenerateids,v 1.4 2002/12/26 00:20:48 akuchling Exp $"
 
@@ -35,41 +35,36 @@ def main ():
 
     # Process arguments
     for opt, arg in opts:
-	if opt in ['-h', '--help']: 
-	    print(__doc__) ; sys.exit(0)
+        if opt in ['-h', '--help']: 
+            print(__doc__) ; sys.exit(0)
 
     if len(args) == 0: args = [sys.stdin]
     qtlist = quotation.Collection()
     for file in args:
         if isinstance(file, str): input = open(file, 'r')
-	else: input = file
+        else: input = file
         qtlist.extend(parse.parse(input))
         
     # List existing IDs
-    ids = {}
+    ids = set()
     for qt in qtlist:
         if qt.id is not None:
-            ids[qt.id] = None
+            ids.add(qt.id)
 
     # Adds IDs to quotes that lack one
     id = 1
     for qt in qtlist:
         if qt.id is not None:
             continue
-        while 'q' + str(id) in ids:
+        while ('q' + str(id)) in ids:
             id += 1
         qt.id = 'q' + str(id)
-        ids[qt.id] = None
+        ids.add(qt.id)
 
     # Output the file again
     encoding = 'UTF-8'
-    sys.stdout.write(QEL_HEADER % encoding)
-    for qt in qtlist:
-        sys.stdout.write(qt.as_xml(encoding))
-        sys.stdout.write('\n')
-        
-    sys.stdout.write("</quotations>")
-    
+    xml = qtlist.as_xml(encoding)
+    sys.stdout.buffer.write(xml.encode(encoding))    
 
 if __name__ == '__main__':
     main()
