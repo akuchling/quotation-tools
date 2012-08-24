@@ -17,6 +17,8 @@
 
 import sys, getopt, time
 import qel
+from qel.quotation import Collection
+from qel.parse import parse
 
 __doc__ = """%s [options] file1 file2 ...
 Merge the QEL files 'file1', 'file2', and output the resulting QEL file
@@ -34,46 +36,47 @@ def main():
                                ['strict', 'loose'])
     for opt, param in opts:
         if opt == '--strict':
-            strict=1
+            strict = True
         elif opt == '--loose':
-            strict = 0
+            strict = False
 
     if len(args) == 0:
         print(__doc__)
         sys.exit(1)
-	
+        
     encoding = 'UTF-8'        
-    print(qel.QEL_HEADER % encoding)
+    coll = Collection()
 
     # Merge the listed files
-    ids = {}
+    ids = set()
     for filename in args:
-        input = open(filename, 'r')
-        L = qel.parse.parse(input)
+        with open(filename, 'r') as input:
+            L = parse(input)
+
         for qt in L:
             if qt.id is not None:
                 if qt.id in ids:
                     if strict:
-                        sys.stderr.write('%s:Duplicate ID %s' %
+                        sys.stderr.write('%s:Duplicate ID %s\n' %
                                          (filename, repr(str(qt.id))))
                         sys.exit(2)
                     else:
                         # We're in non-strict mode, so we need to generate
                         # a new unique ID for this quotation.
                         while 1:
-                            new_id = str(int(time.time()))
+                            new_id = 'id' + str(int(time.time()))
                             if new_id not in ids:
                                 break
 
                         qt.id = new_id
 
-                ids[qt.id]=None
+                ids.add(qt.id)
+	
+            coll.append(qt)
 
-            print(qt.as_xml(encoding))
-            
-        input.close()
-
-    print(qel.QEL_FOOTER)
+    # Output the resulting merged collection as XML.
+    xml = coll.as_xml(encoding='UTF-8')
+    sys.stdout.buffer.write(xml.encode('UTF-8'))
     
 if __name__ == '__main__':
     main()
