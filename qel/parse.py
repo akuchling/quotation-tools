@@ -5,7 +5,7 @@ qel.parse -- Parse a document in the QEL DTD,
 
 __revision__ = "$Id: parse.py,v 1.23 2002/10/06 01:13:02 akuchling Exp $"
 
-import StringIO, codecs, sys, string, re
+import io, codecs, sys, string, re
 from xml.dom import pulldom
 
 from qel import QEL_NS, RDF_NS
@@ -15,6 +15,15 @@ __all__ = ['ParseError', 'parse']
 
 class ParseError (Exception):
     pass
+
+def _split_type(S):
+    """(str): [str]
+
+    Given a string containing comma-separated types, return a list of the types.
+    """
+    if S is None:
+        return None
+    return [typ.strip() for typ in S.split(',')]
 
 def simplify(text_list, trim_ends = True):
     "Apply various simplifications to a list of Text instances"
@@ -35,7 +44,7 @@ def simplify(text_list, trim_ends = True):
     for i in range(len(text_list)):
         t = text_list[i]
         if isinstance(t, quotation.Text):
-            text_list[i] = quotation.Text(re.sub('\s+', u' ', t.text))
+            text_list[i] = quotation.Text(re.sub('\s+', ' ', t.text))
         elif t.is_break() or t.is_preformatted():
             continue
         else:
@@ -93,7 +102,7 @@ def _ignore_text (stream):
     Discard text, until an element is encountered.
     """
     while 1:
-        token, node = stream.next()
+        token, node = next(stream)
         if token in [pulldom.START_ELEMENT, pulldom.END_ELEMENT,
                      pulldom.END_DOCUMENT]:
             return token, node
@@ -102,9 +111,9 @@ def _collect_text (stream, end_tag):
     """_collect_text(DOMStream, str) : string
     Accumulate the plain text up until the specified end tag.
     """
-    text = u""
+    text = ""
     while 1:
-        token, node = stream.next()
+        token, node = next(stream)
         if token == pulldom.CHARACTERS:
             text += node.nodeValue
         elif token == pulldom.END_ELEMENT:
@@ -161,7 +170,7 @@ def _parse_quotation (stream, token, node):
             return None
 
         try:
-            token, node = stream.next()
+            token, node = next(stream)
         except StopIteration:
             return None
 
@@ -172,7 +181,7 @@ def _parse_quotation (stream, token, node):
     qt.date = node.getAttributeNS(None, 'date') or None
     qt.type = node.getAttributeNS(None, 'type') or None
     if qt.type is not None:
-        qt.type = map(string.strip, qt.type.split(','))
+        qt.type = _split_type(qt.type)
 
     for c in node.childNodes:
         if c.nodeType == c.ELEMENT_NODE:
@@ -184,7 +193,7 @@ def _parse_quotation (stream, token, node):
                 qt.author = a = quotation.Author()
                 a.type = c.getAttributeNS(None, 'type') or None
                 if a.type is not None:
-                    a.type = map(string.strip, a.type.split(','))
+                    a.type = _split_type(a.type)
                 a.uri = c.getAttributeNS(RDF_NS, 'resource') or None
                 a.text = _process_text(c.childNodes)
 
@@ -192,7 +201,7 @@ def _parse_quotation (stream, token, node):
                 qt.source = s = quotation.Source()
                 s.type = c.getAttributeNS(None, 'type') or None
                 if s.type is not None:
-                    s.type = map(string.strip, s.type.split(','))
+                    s.type = _split_type(s.type)
                 s.uri = c.getAttributeNS(RDF_NS, 'resource') or None
                 s.text = _process_text(c.childNodes)
 
@@ -215,7 +224,7 @@ def parse(input):
 
     # Scan for top-level 'quotations' element
     while 1:
-        token, node = stream.next()
+        token, node = next(stream)
         if (token == pulldom.START_ELEMENT and
             node.tagName == 'quotations'):
             break
@@ -253,6 +262,6 @@ def parse(input):
         if qt is None:
             break
         coll.append(qt)
-        token, node = stream.next()
+        token, node = next(stream)
 
     return coll

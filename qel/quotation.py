@@ -55,7 +55,7 @@ def format_paragraph_as_xml(paragraph, indent, encoding):
     start = 0
     for j in range(len(paragraph)):
         t = paragraph[j]
-        if isinstance(t, unicode):
+        if isinstance(t, str):
             output += t.encode(encoding)
 
         elif (t.is_break() or t.is_preformatted()):
@@ -95,7 +95,7 @@ class Collection (list):
         if self.license:
             s += '  <license>'
             for t in self.license:
-                if isinstance(t, unicode):
+                if isinstance(t, str):
                     s += escape(t).encode(encoding)
                 else:
                     s += t.as_xml(encoding)
@@ -114,7 +114,7 @@ class Author:
     def as_text (self):
         v = ""
         for t in self.text:
-            if isinstance(v, unicode):
+            if isinstance(v, str):
                 v += t
             else:
                 v += t.as_text()
@@ -123,7 +123,7 @@ class Author:
     def as_rst (self):
         v = ""
         for t in self.text:
-            if isinstance(v, unicode):
+            if isinstance(v, str):
                 v += t
             else:
                 v += t.as_rst()
@@ -132,7 +132,7 @@ class Author:
     def as_wiki (self):
         v = ""
         for t in self.text:
-            if isinstance(v, unicode):
+            if isinstance(v, str):
                 v += t
             else:
                 v += t.as_wiki()
@@ -179,7 +179,7 @@ class _CollectionAttribute:
         v = "<p class='%s'>" % self.tag_name
         for t in self.text:
             t = t.as_html()
-            if isinstance(t, unicode):
+            if isinstance(t, str):
                 t = t.encode('iso-8859-1')
             v += t
         return v + '\n'
@@ -450,7 +450,7 @@ class Text:
 
     def __init__(self, text=""):
         if isinstance(text, str):
-            text = unicode(text)
+            text = str(text)
         self.text = text
 
     def __str__(self):
@@ -482,7 +482,7 @@ class Text:
     # We need to allow adding a string to Text instances.
     def __add__(self, val):
         if isinstance(val, str):
-            val = unicode(val, 'iso-8859-1')
+            val = str(val, 'iso-8859-1')
         newtext = self.text + val
         return Text(newtext)
 
