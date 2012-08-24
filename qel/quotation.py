@@ -81,9 +81,12 @@ class Collection (list):
         self.license = None
 
     def as_xml (self, encoding="UTF-8"):
-        """(str): bytes
+        """(str): str
 
-        Return the XML representation of the collection.
+        Return the XML representation of the collection.  The 'encoding'
+        parameter will be substituted into the XML document's header,
+        but it's the caller's responsibility to encode the string returned
+        from this method.
         """
         from qel import QEL_HEADER, QEL_FOOTER
         s = QEL_HEADER % encoding
