@@ -1,7 +1,7 @@
 
 # Test suite for the qel.parse module
 
-import StringIO
+from io import StringIO
 
 import unittest
 from qel import parse, quotation
@@ -21,13 +21,13 @@ class QELParseTest(unittest.TestCase):
 
         # Empty file
         xml = self.xml_header + "<quotations></quotations>"
-        input = StringIO.StringIO(xml)
+        input = StringIO(xml)
         self.assertEquals(parse.parse(input), [])
 
         # Empty quotation
         xml = self.xml_header + ("<quotations><quotation>"
                                  "</quotation></quotations>")
-        input = StringIO.StringIO(xml)
+        input = StringIO(xml)
         L = []
         parse.parse(input)
 
@@ -40,7 +40,7 @@ class QELParseTest(unittest.TestCase):
           <license><p>para1</p><p>para2</p></license>
         </quotations>""")
 
-        input = StringIO.StringIO(xml)
+        input = StringIO(xml)
         coll = parse.parse(input)
 
         self.assertEquals(coll.title, 'Test Title')
@@ -57,7 +57,7 @@ class QELParseTest(unittest.TestCase):
         <source type="s1,s2">s1</source><note><p>n1</p></note>
         </quotation></quotations>""")
 
-        input = StringIO.StringIO(xml)
+        input = StringIO(xml)
         coll = parse.parse(input)
 
         qt = coll[0]
