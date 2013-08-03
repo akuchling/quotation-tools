@@ -16,7 +16,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys, getopt, string
+import sys, getopt, random
 import qel
 from qel import parse, quotation
 
@@ -40,12 +40,13 @@ Other options:
                     "NEW FILE 1/10"
 """ % sys.argv[0]
 
-# This function is used to count the number of lines in a
-# quotation's text representation.
+
 def count_lines(qt, method):
+    "Count the number of lines in a quotation's text representation."
     meth = getattr(qt, method)
     output = meth()
-    return string.count(output, '\n')
+    return output.count('\n')
+
 
 def main():
     encoding = 'UTF-8'
@@ -55,7 +56,7 @@ def main():
                                 'max=', 'help', 'randomize', 'rst', 'split='] )
     # Set defaults
     maxlength = 0 ; method = 'as_fortune'
-    randomize = 0
+    randomize = False
     split_size = None
 
     # Process arguments
@@ -73,35 +74,37 @@ def main():
         elif opt in ['-x', '--xml']:
             method = 'as_xml'
         elif opt in ['-m', '--max']:
-            maxlength = string.atoi(arg)
+            maxlength = int(arg)
         elif opt in ['-r', '--randomize']:
-            randomize = 1
+            randomize = True
         elif opt in ['-s', '--split']:
             split_size = int(arg) * 1024
         elif opt == '--help':
-            print(__doc__) ; sys.exit(0)
+            print(__doc__)
+            sys.exit(0)
 
     # Loop over the input files; use sys.stdin if no files are specified
-    if len(args) == 0: args = [sys.stdin]
-    qtcoll = None
+    if len(args) == 0:
+        args = [sys.stdin]
+
+    output_qtcoll = None
     for file in args:
-        if isinstance(file, str): input = open(file, 'r')
-        else: input = file
-        qtcoll2 = parse.parse(input)
-        if maxlength!=0:
-            qtcoll2 = list(filter(lambda qt, maxlength=maxlength, method=method, :
-                             count_lines(qt, method) <= maxlength,
-                             qtcoll2))
-        if qtcoll is None:
-            qtcoll = qtcoll2
+        if isinstance(file, str):
+            input = open(file, 'r')
         else:
-            qtcoll.extend(qtcoll2)
+            input = file
+        qtcoll = parse.parse(input)
+        if maxlength != 0:
+            qtcoll = [qt for qt in qtcoll
+                      if count_lines(qt, method) <= maxlength]
+        if qtcoll is None:
+            output_qtcoll = qtcoll
+        else:
+            output_qtcoll.extend(qtcoll)
 
     # Randomize the order of the quotations
     if randomize:
-        import random
         random.shuffle(qtcoll)
-        q2 = []
 
     if method == 'as_xml':
         sys.stdout.write(qtcoll.as_xml(encoding))
@@ -115,7 +118,7 @@ def main():
         for quote in qtcoll:
             current_file_size += len(quote)
             if current_file_size > split_size:
-                current_file_size = current_file_size % split_size
+                current_file_size = 0
                 num_files += 1
 
     # Output the quotations
