@@ -49,7 +49,7 @@ def count_lines(qt, method):
 
 
 def main():
-    encoding = 'UTF-8'
+
     # Process the command-line arguments
     opts, args = getopt.getopt(sys.argv[1:], 'fhtwxm:Rrs:',
                                ['fortune', 'html', 'text', 'wiki', 'xml',
@@ -58,6 +58,7 @@ def main():
     maxlength = 0 ; method = 'as_fortune'
     randomize = False
     split_size = None
+    encoding = 'UTF-8'
 
     # Process arguments
     for opt, arg in opts:
