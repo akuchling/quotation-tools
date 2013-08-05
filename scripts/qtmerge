@@ -17,6 +17,7 @@
 
 import sys, getopt, time
 import qel
+from qel import scripts
 from qel.quotation import Collection
 from qel.parse import parse
 
@@ -29,7 +30,7 @@ Options: --strict     Abort if two quotations have the same ID (default)
 
 def main():
     # Set defaults
-    strict = 1
+    strict = True
 
     # Parse options
     opts, args = getopt.getopt(sys.argv[1:], '',
@@ -43,41 +44,27 @@ def main():
     if len(args) == 0:
         print(__doc__)
         sys.exit(1)
-        
-    encoding = 'UTF-8'        
+
+    encoding = 'UTF-8'
     coll = Collection()
 
     # Merge the listed files
-    ids = set()
+    collections = []
     for filename in args:
-        with open(filename, 'r') as input:
-            L = parse(input)
+        with open(filename, 'r') as stream:
+            coll = parse(stream)
+            collections.append(coll)
 
-        for qt in L:
-            if qt.id is not None:
-                if qt.id in ids:
-                    if strict:
-                        sys.stderr.write('%s:Duplicate ID %s\n' %
-                                         (filename, repr(str(qt.id))))
-                        sys.exit(2)
-                    else:
-                        # We're in non-strict mode, so we need to generate
-                        # a new unique ID for this quotation.
-                        while 1:
-                            new_id = 'q' + str(int(time.time()))
-                            if new_id not in ids:
-                                break
-
-                        qt.id = new_id
-
-                ids.add(qt.id)
-	
-            coll.append(qt)
+    try:
+        coll = scripts.merge(*collections, strict=strict)
+    except scripts.DuplicateIDException as exc:
+        sys.stderr.write('%s:%s\n' % (filename, str(exc)))
+        sys.exit(2)
 
     # Output the resulting merged collection as XML.
     xml = coll.as_xml(encoding='UTF-8')
     sys.stdout.buffer.write(xml.encode('UTF-8'))
-    
+
 if __name__ == '__main__':
     main()
 
