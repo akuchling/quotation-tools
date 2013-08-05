@@ -446,6 +446,24 @@ class Quotation:
         output += "  </quotation>\n"
         return output
 
+    def is_matching_regex(self, regex_pat):
+        """Return true if some of the text in 'quotation' matches
+        the compiled regex object 'pattern'."""
+
+        queue = self.text[:]
+        while len(queue):
+            obj = queue.pop(0)
+            if isinstance(obj, list):
+                queue = obj + queue
+            elif isinstance(obj, Text):
+                if regex_pat.search(obj.text):
+                    return True
+            else:
+                queue += list(obj.children)
+
+        return False
+
+
 # Text and Markup and its subclasses are used to hold chunks of text;
 # instances know how to display themselves as plain text or as HTML.
 

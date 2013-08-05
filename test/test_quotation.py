@@ -1,6 +1,7 @@
 # Test suite for the Quotation class
 
 import unittest
+import re
 from qel import quotation
 
 class QuotationTest(unittest.TestCase):
@@ -116,6 +117,14 @@ class QuotationTest(unittest.TestCase):
 
 note
 """)
+
+    def test_is_matching(self):
+        self.qt.text = [ [quotation.EmphasizedText('1')],
+                         [quotation.Text('para2')] ]
+        self.assertTrue(self.qt.is_matching_regex(re.compile('para')))
+        self.assertFalse(self.qt.is_matching_regex(re.compile('bogus')))
+
+
 
 class TestText(unittest.TestCase):
     def test_text(self):

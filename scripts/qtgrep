@@ -27,22 +27,6 @@ __doc__ = """Usage: %s [options] file1.xml file2.xml ...
 If no filenames are provided, standard input will be read.
 """ % sys.argv[0]
 
-def is_matching(pattern, quotation):
-    """Return true if some of the text in 'quotation' matches
-    the compiled regex object 'pattern'."""
-
-    queue = quotation.text[:]
-    while len(queue):
-        obj = queue.pop(0)
-        if isinstance(obj, list):
-            queue = obj + queue
-        elif isinstance(obj, Text):
-            if pattern.search(obj.text):
-                return True
-        else:
-            queue += list(obj.children)
-
-    return False
 
 def filename(file):
     """Return the file's name; 'file' is either a string which is just
@@ -53,23 +37,26 @@ def filename(file):
 
 def main():
     # Default flags
-    count = 0                           # Just display a count of matches
+    count = False                       # Just display a count of matches
 
     # Process the command-line arguments
     opts, args = getopt.getopt(sys.argv[1:], 'c',
                                ['count'] )
     for opt, arg in opts:
-        if opt in ['-c', '--count']: count=1
+        if opt in ['-c', '--count']:
+            count = True
 
     if len(args) < 1:
         print(__doc__)
         sys.exit(1)
 
-    expr = args[0] ; args = args[1:]
+    expr = args[0]
+    args = args[1:]
     pattern = re.compile(expr, re.IGNORECASE)
 
     # Loop over the input files; use sys.stdin if no files are specified
-    if len(args) == 0: args = [sys.stdin]
+    if len(args) == 0:
+        args = [sys.stdin]
     qtlist = []
 
     encoding = 'UTF-8'
@@ -77,13 +64,13 @@ def main():
 
     for file in args:
         if isinstance(file, str):
-            input = open(file, 'r')
+            stream = open(file, 'r')
         else:
-            input = file
-        qtlist = parse(input)
+            stream = file
+        qtlist = parse(stream)
         matches = 0
         for qt in qtlist:
-            if is_matching(pattern, qt):
+            if qt.is_matching_regex(pattern):
                 if count:
                     matches += 1
                 else:
@@ -93,7 +80,7 @@ def main():
         # File completed
         if count:
             print(filename(file),':',matches)
-	    
+
     if not count:
         xml = coll.as_xml(encoding='UTF-8')
         sys.stdout.buffer.write(xml.encode('UTF-8'))
