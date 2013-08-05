@@ -11,19 +11,20 @@ class QuotationTest(unittest.TestCase):
     def tearDown(self):
         del self.qt
 
-    def test_xmlconv(self):
-        "Conversion to XML"
-
+    def test_xmlconv_empty(self):
         # Empty quotation
         self.assertEqual(self.qt.as_xml(),
                          "  <quotation>\n  </quotation>\n")
 
+    def test_xmlconv_id_date(self):
         # Add an id and a date
         self.qt.id = "idval" ; self.qt.date = "2000-01-01"
         self.qt.type = ['funny', 'silly']
         self.assertEqual(self.qt.as_xml(),
                        '  <quotation id="idval" date="2000-01-01" type="funny,silly">\n'
                        '  </quotation>\n')
+
+    def test_xmlconv_quoting(self):
         # Test quoting
         self.qt.id = "&<>" ; self.qt.date = "&<>"
         self.qt.type = None
@@ -31,6 +32,7 @@ class QuotationTest(unittest.TestCase):
                        '  <quotation id="&amp;&lt;&gt;" date="&amp;&lt;&gt;">\n'
                        '  </quotation>\n')
 
+    def test_xmlconv_basic(self):
         # Test minimal quotatation with 1 paragraph
         self.qt.id = self.qt.date = None
         self.qt.text = [ [quotation.Text('para1')] ]
@@ -45,6 +47,7 @@ class QuotationTest(unittest.TestCase):
                           """para1\n""")
         self.assertEqual(len(self.qt), 5)
 
+    def test_xmlconv_break(self):
         # Test a break
         self.qt.id = self.qt.date = None
         self.qt.text = [ [quotation.Text('line1'), quotation.Break(),
@@ -61,6 +64,7 @@ class QuotationTest(unittest.TestCase):
         self.assertEqual(self.qt.as_text(),
                        """line1\nline2\n""")
 
+    def test_xmlconv_2paras(self):
         # Test simple text with 2 paragraphs
         self.qt.id = self.qt.date = None
         self.qt.text = [ [quotation.Text('para1')],
@@ -78,6 +82,7 @@ class QuotationTest(unittest.TestCase):
         self.assertEqual(self.qt.as_text(),
                        """    para1\n    para2\n""")
 
+    def test_xmlconv_complete(self):
         self.qt.author = quotation.Author()
         self.qt.author.text = [quotation.Text('author')]
         self.qt.source = quotation.Source()
