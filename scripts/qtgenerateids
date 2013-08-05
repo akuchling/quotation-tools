@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# 
+#
 # qtgenerateids
 # Copyright (C) 2002 A.M. Kuchling
 #
@@ -19,7 +19,7 @@
 # GNU General Public License for more details.
 
 import sys, getopt
-from qel import parse, quotation
+from qel import parse, quotation, scripts
 
 __revision__ = "$Id: qtgenerateids,v 1.4 2002/12/26 00:20:48 akuchling Exp $"
 
@@ -35,39 +35,26 @@ def main ():
 
     # Process arguments
     for opt, arg in opts:
-        if opt in ['-h', '--help']: 
+        if opt in ['-h', '--help']:
             print(__doc__) ; sys.exit(0)
 
-    if len(args) == 0: args = [sys.stdin]
-    qtlist = quotation.Collection()
-    for file in args:
-        if isinstance(file, str): input = open(file, 'r')
-        else: input = file
-        qtlist.extend(parse.parse(input))
-        
-    # List existing IDs
-    ids = set()
-    for qt in qtlist:
-        if qt.id is not None:
-            ids.add(qt.id)
+    if len(args) == 0:
+        args = [sys.stdin]
+    qtcoll = quotation.Collection()
+    for fn in args:
+        if isinstance(fn, str):
+            stream = open(fn, 'r')
+        else:
+            stream = file
+        qtcoll.extend(parse.parse(stream))
 
-    # Adds IDs to quotes that lack one
-    id = 1
-    for qt in qtlist:
-        if qt.id is not None:
-            continue
-        while ('q' + str(id)) in ids:
-            id += 1
-        qt.id = 'q' + str(id)
-        ids.add(qt.id)
+    # Add IDs where they're missing
+    scripts.generate_ids(qtcoll)
 
     # Output the file again
     encoding = 'UTF-8'
-    xml = qtlist.as_xml(encoding)
-    sys.stdout.buffer.write(xml.encode(encoding))    
+    xml = qtcoll.as_xml(encoding)
+    sys.stdout.buffer.write(xml.encode(encoding))
 
 if __name__ == '__main__':
     main()
-
-
-
