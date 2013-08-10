@@ -21,17 +21,17 @@
   -->
 
 <!--
-  (The following license is the W3C's Software License, with the 
+  (The following license is the W3C's Software License, with the
    name of the copyright holder changed.)
 
-  Copyright 2001 A.M. Kuchling.  All Rights Reserved. 
-  
+  Copyright 2001 Andrew M. Kuchling.
+
    This work (including software, documents, or other related items)
    is being provided by the copyright holders under the following
    license. By obtaining, using and/or copying this work, you (the
    licensee) agree that you have read, understood, and will comply with
    the following terms and conditions:
-   
+
    Permission to use, copy, modify, and distribute this software and its
    documentation, with or without modification,  for any purpose and
    without fee or royalty is hereby granted, provided that you include
@@ -43,23 +43,22 @@
        terms and conditions. If none exist, a short notice of the
        following form (hypertext is preferred, text is permitted) should
        be used within the body of any redistributed or derivative code:
-       "Copyright [$date-of-software] A.M. Kuchling. All
-       Rights Reserved."
+       "Copyright [$date-of-software] Andrew M. Kuchling."
     3. Notice of any changes or modifications to the file, including
        the date changes were made. (We recommend you provide URIs to the
        location from which the code is derived.)
-       
+
    THIS SOFTWARE AND DOCUMENTATION IS PROVIDED "AS IS," AND COPYRIGHT
    HOLDERS MAKE NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED,
    INCLUDING BUT NOT LIMITED TO, WARRANTIES OF MERCHANTABILITY OR FITNESS
    FOR ANY PARTICULAR PURPOSE OR THAT THE USE OF THE SOFTWARE OR
    DOCUMENTATION WILL NOT INFRINGE ANY THIRD PARTY PATENTS, COPYRIGHTS,
    TRADEMARKS OR OTHER RIGHTS.
-   
+
    COPYRIGHT HOLDERS WILL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL
    OR CONSEQUENTIAL DAMAGES ARISING OUT OF ANY USE OF THE SOFTWARE OR
    DOCUMENTATION.
-   
+
    The name and trademarks of copyright holders may NOT be used in
    advertising or publicity pertaining to the software without specific,
    written prior permission. Title to copyright in this software and any
@@ -69,7 +68,7 @@
 
   <!-- Reduce the number of HTMLish elements available from QEL -->
 <!ENTITY % vert "p">
-<!ENTITY % horiz "#PCDATA | abbr | acronym | br | cite | code | 
+<!ENTITY % horiz "#PCDATA | abbr | acronym | br | cite | code |
                   em | foreign | q | pre">
 
 <!ENTITY % ibtwsh PUBLIC "-//XML-DEV List//DTD IBTWSH 6.0//EN" "ibtwsh6.dtd">
@@ -82,12 +81,12 @@
 
 <!ATTLIST pre xml:space (default|preserve) 'preserve'>
 
-<!-- Include the IBTWSH DTD to define the XHTML Basic subset used for 
+<!-- Include the IBTWSH DTD to define the XHTML Basic subset used for
      rich text formatting. -->
 
 <!ELEMENT quotations (quotation)*>
 
-<!ELEMENT quotation ( %struct.model;, 
+<!ELEMENT quotation ( %struct.model;,
                       author?, source?, note?) >
 <!ATTLIST quotation id   ID     #IMPLIED
                     date CDATA  #IMPLIED>

@@ -51,7 +51,7 @@ as published by the Free Software Foundation; either version 2 of
 the License, or (at your option) any later version.
 
 The QEL DTD is under a modified version of the W3C's software license,
-though the copyright is held by A.M. Kuchling.
+though the copyright is held by me.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -59,6 +59,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 
-| A.M. Kuchling
+| Andrew M. Kuchling
 | amk@amk.ca
 | http://www.amk.ca

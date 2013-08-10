@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # fortune2qel
-# Copyright (C) 2002 A.M. Kuchling
+# Copyright 2002, 2013 Andrew M. Kuchling
 #
 # Attempts to convert quotations from fortune to QEL format.
 #

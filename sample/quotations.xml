@@ -10,7 +10,7 @@
     A sample QEL 2.0 file.
   </description>
   <copyright>
-    Copyright 2002, A.M. Kuchling.  All rights reserved.
+    Copyright 2013 Andrew M. Kuchling.
   </copyright>
   <license><p>
     This file, like the rest of the quotations package, is placed under
@@ -21,7 +21,7 @@
 
 <quotation id='i1' date='2001-01-01' type="scifi, funny">
   <p>
-    First things first, but not necessarily in that order.  
+    First things first, but not necessarily in that order.
   </p>
   <author rdf:resource="http://XXX" type="character">The Doctor</author>
   <source rdf:resource="http://XXX" type="tv">In John Flanagan and Andrew McCulloch's <cite>Meglos</cite> </source>
@@ -30,11 +30,11 @@
 <quotation id='i2' date='2001-12-18'>
   <p>
     This quotation tests all the different elements:
-       <abbr>i.e.</abbr> 
+       <abbr>i.e.</abbr>
        <acronym>DARPA</acronym>
        <cite>Don Quixote</cite>
        <code>print 41+2</code>
-       <em>emphasis</em> 
+       <em>emphasis</em>
        <foreign>Les langues des hommes sont pleines de tromperies</foreign>
        <q>Quoted passage</q>
 </p><p>
@@ -47,16 +47,16 @@ if 1:
 
 <quotation>
   <p>
-    If I die, the turtle will carry the secret of the trip and 
-    reveal it at the proper time.  
+    If I die, the turtle will carry the secret of the trip and
+    reveal it at the proper time.
   </p>
   <author>George L. Stathakis</author>
   <note>
     <p>
       Stathakis was a Greek-born Buffalo chef and mystic who
-      went over Niagara Falls in a barrel on July 5, 1930.  He 
-      perished, but his pet turtle crawled out of the barrel 
-      and lived for many years without revealing a word of 
+      went over Niagara Falls in a barrel on July 5, 1930.  He
+      perished, but his pet turtle crawled out of the barrel
+      and lived for many years without revealing a word of
       "the secret."
     </p>
   </note>

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # qtmerge
-# Copyright (C) 2002 A.M. Kuchling
+# Copyright 2002, 2013 Andrew M. Kuchling
 #
 # Script for merging two or more QEL files together
 #

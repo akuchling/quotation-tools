@@ -1,5 +1,5 @@
-##     qel -- A package for parsing and manipulating QEL.
-##     Copyright (C) 2001 A.M. Kuchling
+##     qel -- A package for parsing and manipulating QEL, an XML format.
+##     Copyright 2001, 2013 Andrew M. Kuchling
 
 ##     This program is free software; you can redistribute it and/or modify
 ##     it under the terms of the GNU General Public License as published by

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # qtformat
-# Copyright (C) 2002 A.M. Kuchling
+# Copyright 2002, 2013 Andrew M. Kuchling
 #
 # Reads a document in the QEL DTD, converting it to a list of Quotation
 # objects.  The list can then be output in several formats.
