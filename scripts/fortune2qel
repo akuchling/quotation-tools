@@ -5,16 +5,17 @@
 #
 # Attempts to convert quotations from fortune to QEL format.
 #
-# This script doesn't try to be complete, since the files distributed
-# with fortune include all sorts of wackiness.  It'll be hopeless on
-# things like ASCII art, and limits itself to quotations that
-# appear to have an attribution.  This is determined by looking for
-# final lines that start with '\s+--'; the contents of this line and
-# any following lines are assumed to be the attribution, which will be
-# used as the contents of the <source> element.  (No attempt is made to
-# parse this into author and title, as this seems too difficult and
-# error-prone.)  The rest of the quotation is broken into paragraphs
-# and forms the body of the <quotation> element.
+# This script doesn't use the Quotation object at all; it operates purely at
+# the level of XML text. It also doesn't try to be complete, because the
+# files distributed with fortune include all sorts of wackiness. It'll be
+# hopeless on things like ASCII art, and limits itself to quotations that
+# appear to have an attribution. This is determined by looking for final
+# lines that start with '\s+--'; the contents of this line and any following
+# lines are assumed to be the attribution, which will be used as the contents
+# of the <source> element. (No attempt is made to parse this into author and
+# title, as this seems too difficult and error-prone.) The rest of the
+# quotation is broken into paragraphs and forms the body of the <quotation>
+# element.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +27,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys, re
+import sys, re, codecs
 import getopt
 from xml.sax import saxutils
 import qel
@@ -46,7 +47,8 @@ def read_quotation(input):
             break
         L.append(line)
 
-    if len(L) == 0: return None
+    if len(L) == 0:
+        return None
     return L
 
 
@@ -112,15 +114,15 @@ def convert_quotation(L):
     paragraphs = []
     start = 0
     for i in range(len(L)):
-        if i>0 and re.match('^\s+', L[i]) is not None:
+        if i > 0 and re.match('^\s+', L[i]) is not None:
             paragraphs.append( L[start:i] )
             start = i
     paragraphs.append( L[start:] )
 
     # Convert each paragraph into a string and remove extra
     # whitespace.
-    paragraphs = [ normalize_whitespace( ' '.join(para) )
-                   for para in paragraphs ]
+    paragraphs = [normalize_whitespace( ' '.join(para) )
+                  for para in paragraphs ]
     paragraphs = [_f for _f in paragraphs if _f]
 
     # If there are no paragraphs at all, presumably the quotation is
@@ -151,16 +153,17 @@ def convert_quotation(L):
 
 def main():
     args = sys.argv[1:]
-    if len(args) == 0: args = [sys.stdin]
+    if len(args) == 0:
+        args = [sys.stdin]
 
-    encoding = 'ISO-8859-1'
+    encoding = sys.getdefaultencoding()
     print(qel.QEL_HEADER % encoding)
 
     for file in args:
         if isinstance(file, str):
-            input = open(file, 'r')
+            stream = open(file, 'r')
         else:
-            input = file
+            stream = file
 
         while 1:
             quote = read_quotation(input)

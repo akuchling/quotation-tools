@@ -9,9 +9,9 @@ setup(
     author = "A.M. Kuchling",
     author_email = "amk@amk.ca",
     url = "http://www.amk.ca/qel/",
-    
+
     packages = ['qel'],
-    scripts = ['scripts/fortune2qel',
+    scripts = [#'scripts/fortune2qel',
                'scripts/qtformat', 'scripts/qtgrep', 'scripts/qtmerge',
                'scripts/qtgenerateids'],
     data_files = [('/usr/lib/sgml/', ['xml/qel-2.01.dtd',
