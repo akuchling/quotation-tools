@@ -3,8 +3,6 @@ qel.parse -- Parse a document in the QEL DTD,
              converting it to a list of Quotation objects.
 """
 
-__revision__ = "$Id: parse.py,v 1.23 2002/10/06 01:13:02 akuchling Exp $"
-
 import io, codecs, sys, string, re
 from xml.dom import pulldom
 

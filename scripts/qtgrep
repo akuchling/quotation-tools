@@ -21,8 +21,6 @@ import qel
 from qel.parse import parse
 from qel.quotation import Collection, Text
 
-__revision__ = "$Id: qtgrep,v 1.5 2002/09/29 23:51:02 akuchling Exp $"
-
 __doc__ = """Usage: %s [options] file1.xml file2.xml ...
 If no filenames are provided, standard input will be read.
 """ % sys.argv[0]

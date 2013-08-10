@@ -21,8 +21,6 @@
 import sys, getopt
 from qel import parse, quotation, scripts
 
-__revision__ = "$Id: qtgenerateids,v 1.4 2002/12/26 00:20:48 akuchling Exp $"
-
 __doc__ = """Usage: %s [options] file1.xml file2.xml ...
 If no filenames are provided, standard input will be read.
 Outputs a QEL file with every quotation assigned an ID.

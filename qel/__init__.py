@@ -34,7 +34,6 @@ QEL_FOOTER -- The footer to be written at the end of a QEL file (just
 
 # QEL package
 
-__revision__ = "$Id: __init__.py,v 1.10 2002/10/02 12:26:11 akuchling Exp $"
 __version__ = '0.0.5'
 
 # XML and DTD declaration for QEL files

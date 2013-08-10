@@ -27,13 +27,9 @@
 # GNU General Public License for more details.
 
 import sys, re
+import getopt
 from xml.sax import saxutils
-
 import qel
-
-__revision__ = "$Id: fortune2qel,v 1.4 2002/09/29 23:50:44 akuchling Exp $"
-
-import sys, getopt
 
 __doc__ = """Usage: %s [file1 file2 ...]
 If no filenames are provided, standard input will be read.

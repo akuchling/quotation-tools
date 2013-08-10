@@ -3,8 +3,6 @@ qel.quotations -- Contains the classes representing the contents of
                   a QEL-format quotation.
 """
 
-__revision__ = "$Id: quotation.py,v 1.28 2004/12/26 16:24:28 akuchling Exp $"
-
 import string, time, re
 
 import textwrap

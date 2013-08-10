@@ -20,8 +20,6 @@ import sys, getopt, random
 import qel
 from qel import parse, quotation
 
-__revision__ = "$Id: qtformat,v 1.12 2004/07/14 15:08:38 akuchling Exp $"
-
 __doc__ = """Usage: %s [options] file1.xml file2.xml ...
 If no filenames are provided, standard input will be read.
 Output formats:
