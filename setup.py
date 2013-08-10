@@ -12,8 +12,7 @@ setup(
 
     packages = ['qel'],
     scripts = [#'scripts/fortune2qel',
-               'scripts/qtformat', 'scripts/qtgrep', 'scripts/qtmerge',
-               'scripts/qtgenerateids'],
+               'scripts/qtformat', 'scripts/qtgrep', 'scripts/qtmerge'],
     data_files = [('/usr/lib/sgml/', ['xml/qel-2.01.dtd',
                                       'xml/quotation-tools.cat',
                                       'xml/ibtwsh6.dtd',
@@ -21,5 +20,3 @@ setup(
                                       'xml/xhtml-special.ent',
                                       'xml/xhtml-symbol.ent'])]
     )
-
-

@@ -6,7 +6,6 @@ maintaining quotation collections using the Quotation Exchange
 Language, or QEL, format.  The scripts making up the toolkit are:
 
 * **qtformat**: For converting QEL to various other formats (text,HTML,more)
-* **qtgenerateids**:   Adds a unique ID to each quotation in a file.
 * **qtgrep**: For searching through a collection
 * **qtmerge**: For merging a number of QEL files
 * **fortune2qel**: Reads a fortune(6) file and outputs QEL for as many

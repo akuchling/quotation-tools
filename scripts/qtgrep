@@ -16,7 +16,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys, re, getopt
+import sys, re, argparse
 import qel
 from qel.parse import parse
 from qel.quotation import Collection, Text
@@ -34,33 +34,30 @@ def filename(file):
     else: return file
 
 def main():
-    # Default flags
-    count = False                       # Just display a count of matches
-
     # Process the command-line arguments
-    opts, args = getopt.getopt(sys.argv[1:], 'c',
-                               ['count'] )
-    for opt, arg in opts:
-        if opt in ['-c', '--count']:
-            count = True
+    parser = argparse.ArgumentParser(description="Search one or more QEL files")
+    parser.add_argument('pattern', metavar='PATTERN',
+                        help='regex pattern for search')
+    parser.add_argument('files', metavar='FILE', nargs='*',
+                        default=[sys.stdin],
+                        help="files to search")
+    parser.add_argument('-c', '--count', dest='count', action='store_true',
+                        default=False,
+                        help='only display the number of matches per file')
+    args = parser.parse_args()
 
-    if len(args) < 1:
-        print(__doc__)
-        sys.exit(1)
-
-    expr = args[0]
-    args = args[1:]
-    pattern = re.compile(expr, re.IGNORECASE)
+    pattern = re.compile(args.pattern, re.IGNORECASE)
 
     # Loop over the input files; use sys.stdin if no files are specified
-    if len(args) == 0:
-        args = [sys.stdin]
-    qtlist = []
+    if len(args.files) == 0:
+        files = [sys.stdin]
+    else:
+        files = args.files
 
-    encoding = 'UTF-8'
+    encoding = sys.getdefaultencoding()
     coll = Collection()
 
-    for file in args:
+    for file in files:
         if isinstance(file, str):
             stream = open(file, 'r')
         else:
@@ -69,17 +66,17 @@ def main():
         matches = 0
         for qt in qtlist:
             if qt.is_matching_regex(pattern):
-                if count:
+                if args.count:
                     matches += 1
                 else:
                     # Default is to print the quotations
                     coll.append(qt)
 
         # File completed
-        if count:
+        if args.count:
             print(filename(file),':',matches)
 
-    if not count:
+    if not args.count:
         xml = coll.as_xml(encoding='UTF-8')
         sys.stdout.buffer.write(xml.encode('UTF-8'))
 

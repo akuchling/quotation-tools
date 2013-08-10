@@ -15,7 +15,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys, getopt, time
+import sys, argparse, time
 import qel
 from qel import scripts
 from qel.quotation import Collection
@@ -29,42 +29,44 @@ Options: --strict     Abort if two quotations have the same ID (default)
 """ % sys.argv[0]
 
 def main():
-    # Set defaults
-    strict = True
-
     # Parse options
-    opts, args = getopt.getopt(sys.argv[1:], '',
-                               ['strict', 'loose'])
-    for opt, param in opts:
-        if opt == '--strict':
-            strict = True
-        elif opt == '--loose':
-            strict = False
+    parser = argparse.ArgumentParser(description="Merge multiple QEL files")
+    parser.add_argument('files', metavar='FILE', nargs='+',
+                        help="files to merge")
+    parser.add_argument('--strict', dest='strict', action='store_true',
+                        default=True,
+                        help='Abort if two quotations have the same ID (default)')
+    parser.add_argument('--loose', dest='strict', action='store_false',
+                        help='Generate new ID if two quotations have the same ID')
+    parser.add_argument('--generate', dest='generate', action='store_true',
+                        default=False,
+                        help='Generate new ID if quotation lacks an ID')
+    args = parser.parse_args()
 
-    if len(args) == 0:
-        print(__doc__)
+    if len(args.files) == 0:
+        parser.print_help()
         sys.exit(1)
 
-    encoding = 'UTF-8'
     coll = Collection()
 
     # Merge the listed files
     collections = []
-    for filename in args:
+    for filename in args.files:
         with open(filename, 'r') as stream:
             coll = parse(stream)
             collections.append(coll)
 
     try:
-        coll = scripts.merge(*collections, strict=strict)
+        coll = scripts.merge(*collections, strict=args.strict,
+                             generate=args.generate)
     except scripts.DuplicateIDException as exc:
         sys.stderr.write('%s:%s\n' % (filename, str(exc)))
         sys.exit(2)
 
     # Output the resulting merged collection as XML.
-    xml = coll.as_xml(encoding='UTF-8')
-    sys.stdout.buffer.write(xml.encode('UTF-8'))
+    encoding = sys.getdefaultencoding()
+    xml = coll.as_xml(encoding=encoding)
+    sys.stdout.buffer.write(xml.encode(encoding))
 
 if __name__ == '__main__':
     main()
-

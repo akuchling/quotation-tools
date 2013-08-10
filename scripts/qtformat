@@ -16,7 +16,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys, getopt, random
+import sys, argparse, random
 import qel
 from qel import parse, quotation
 
@@ -47,65 +47,75 @@ def count_lines(qt, method):
 
 
 def main():
+    # Parse options
+    parser = argparse.ArgumentParser(description="Merge multiple QEL files")
+    parser.add_argument('files', metavar='FILE', nargs='*',
+                        help="files to process")
+    parser.add_argument('-f', '--fortune', dest='output', action='store_const',
+                        const='as_fortune',
+                        default='as_fortune',
+                        help='Produce output for the fortune(1) program')
+    parser.add_argument('-H', '--html', dest='output', action='store_const',
+                        const='as_html',
+                        help='Produce HTML output')
+    parser.add_argument('-R', '--rst', dest='output', action='store_const',
+                        const='as_rst',
+                        help='Produce reStructured Text output')
+    parser.add_argument('-t', '--text', dest='output', action='store_const',
+                        const='as_text',
+                        help='Produce plain text output')
+    parser.add_argument('-w', '--wiki', dest='output', action='store_const',
+                        const='as_wiki',
+                        help='Produce Wikiquote.org-style Wiki output')
+    parser.add_argument('-x', '--xml', dest='output', action='store_const',
+                        const='as_xml',
+                        help='Produce pretty-printed QEL output')
 
-    # Process the command-line arguments
-    opts, args = getopt.getopt(sys.argv[1:], 'fhtwxm:Rrs:',
-                               ['fortune', 'html', 'text', 'wiki', 'xml',
-                                'max=', 'help', 'randomize', 'rst', 'split='] )
-    # Set defaults
-    maxlength = 0 ; method = 'as_fortune'
-    randomize = False
-    split_size = None
-    encoding = 'UTF-8'
+    parser.add_argument('-m', '--max', dest='maxlength', metavar='N',
+                        default=0, type=int,
+                        help='''Suppress quotations longer than N lines;
+                        defaults to 0, which suppresses no quotations at all.
+                        '''),
+    parser.add_argument('-s', '--split', dest='split_size',
+                        default=None, type=int,
+                        help='''Divide the output into chunks of roughly
+                        N kilobytes; the division is indicated by a line
+                        containing just "NEW FILE 1/10''')
 
-    # Process arguments
-    for opt, arg in opts:
-        if opt in ['-f', '--fortune']:
-            method='as_fortune'
-        elif opt in ['-h', '--html']:
-            method = 'as_html'
-        elif opt in ['-R', '--rst']:
-            method = 'as_rst'
-        elif opt in ['-t', '--text']:
-            method = 'as_text'
-        elif opt in ['-w', '--wiki']:
-            method = 'as_wiki'
-        elif opt in ['-x', '--xml']:
-            method = 'as_xml'
-        elif opt in ['-m', '--max']:
-            maxlength = int(arg)
-        elif opt in ['-r', '--randomize']:
-            randomize = True
-        elif opt in ['-s', '--split']:
-            split_size = int(arg) * 1024
-        elif opt == '--help':
-            print(__doc__)
-            sys.exit(0)
+    parser.add_argument('-r', '--randomize', dest='randomize',
+                        action='store_true', default=False,
+                        help='Output quotations in random order')
+
+    args = parser.parse_args()
+    if args.split_size is not None:
+        # Convert from K to bytes.
+        args.split_size *= 1024
 
     # Loop over the input files; use sys.stdin if no files are specified
-    if len(args) == 0:
-        args = [sys.stdin]
+    if len(args.files) == 0:
+        args.files = [sys.stdin]
 
     output_qtcoll = None
-    for file in args:
+    for file in args.files:
         if isinstance(file, str):
-            input = open(file, 'r')
+            stream = open(file, 'r')
         else:
-            input = file
-        qtcoll = parse.parse(input)
-        if maxlength != 0:
+            stream = file
+        qtcoll = parse.parse(stream)
+        if args.maxlength != 0:
             qtcoll = [qt for qt in qtcoll
-                      if count_lines(qt, method) <= maxlength]
-        if qtcoll is None:
+                      if count_lines(qt, args.output) <= args.maxlength]
+        if output_qtcoll is None:
             output_qtcoll = qtcoll
         else:
             output_qtcoll.extend(qtcoll)
 
     # Randomize the order of the quotations
-    if randomize:
+    if args.randomize:
         random.shuffle(qtcoll)
 
-    if method == 'as_xml':
+    if args.output == 'as_xml':
+        encoding = sys.getdefaultencoding()
         sys.stdout.write(qtcoll.as_xml(encoding))
         return
 
@@ -113,28 +123,28 @@ def main():
     # total number of files
     current_file_size = 0
     num_files = 1
-    if split_size is not None:
+    if args.split_size is not None:
         for quote in qtcoll:
             current_file_size += len(quote)
-            if current_file_size > split_size:
+            if current_file_size > args.split_size:
                 current_file_size = 0
                 num_files += 1
 
     # Output the quotations
     current_file_size = 0
-    if split_size is not None:
+    if args.split_size is not None:
         print("NEW FILE 1/%i" % num_files)
         cur_file = 1
 
     for i in range(len(qtcoll)):
         quote = qtcoll[i]
-        meth = getattr(quote, method)
+        meth = getattr(quote, args.output)
         print(meth())
         current_file_size += len(quote)
-        if (split_size is not None and
-            current_file_size > split_size and
+        if (args.split_size is not None and
+            current_file_size > args.split_size and
             i < len(qtcoll) - 1 ):
-            current_file_size = current_file_size % split_size
+            current_file_size = current_file_size % args.split_size
             cur_file += 1
             print("NEW FILE %i/%i" % (cur_file, num_files))
     # We're done!

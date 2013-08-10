@@ -5,31 +5,6 @@ import unittest
 from qel import scripts
 from qel.quotation import Collection, Quotation
 
-class GenerateIdsTest(unittest.TestCase):
-    def test_empty(self):
-        # Should run silently and not raise an exception.
-        qtcoll = Collection()
-        self.assertFalse(scripts.generate_ids(qtcoll))
-
-    def test_ids_added(self):
-        qt1 = Quotation()
-        qt2 = Quotation()
-        qtcoll = Collection()
-        qtcoll.extend([qt1, qt2])
-        self.assertTrue(scripts.generate_ids(qtcoll))
-        self.assertEqual(qt1.id, 'q1')
-        self.assertEqual(qt2.id, 'q2')
-
-    def test_maximum_id_found(self):
-        qt1 = Quotation()
-        qt1.id = 'q45'
-        qt2 = Quotation()
-        qtcoll = Collection()
-        qtcoll.extend([qt1, qt2])
-        self.assertTrue(scripts.generate_ids(qtcoll))
-        self.assertEqual(qt1.id, 'q45')
-        self.assertEqual(qt2.id, 'q46')
-
 
 class MergeTests(unittest.TestCase):
     def test_empty(self):
@@ -60,6 +35,35 @@ class MergeTests(unittest.TestCase):
 
         self.assertRaises(scripts.DuplicateIDException,
                           scripts.merge, c1, c1, strict=True)
+
+    def test_ids_added(self):
+        qt1 = Quotation()
+        qt2 = Quotation()
+        qtcoll = Collection()
+        qtcoll.extend([qt1, qt2])
+        self.assertTrue(scripts.merge(qtcoll, generate=True))
+        self.assertEqual(qt1.id, 'q1')
+        self.assertEqual(qt2.id, 'q2')
+
+    def test_ids_not_added(self):
+        qt1 = Quotation()
+        qt2 = Quotation()
+        qtcoll = Collection()
+        qtcoll.extend([qt1, qt2])
+        self.assertTrue(scripts.merge(qtcoll, generate=False))
+        self.assertEqual(qt1.id, None)
+        self.assertEqual(qt2.id, None)
+
+    def test_maximum_id_found(self):
+        qt1 = Quotation()
+        qt1.id = 'q45'
+        qt2 = Quotation()
+        qtcoll = Collection()
+        qtcoll.extend([qt1, qt2])
+        self.assertTrue(scripts.merge(qtcoll, generate=True))
+        self.assertEqual(qt1.id, 'q45')
+        self.assertEqual(qt2.id, 'q46')
+
 
 if __name__ == '__main__':
     unittest.main()
