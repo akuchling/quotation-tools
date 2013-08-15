@@ -184,7 +184,7 @@ class _CollectionAttribute:
         for t in self.text:
             t = t.as_html()
             v += t
-        return v + '\n'
+        return v + '</p>\n'
 
     def as_xml (self):
         s = '<%s' % self.tag_name
@@ -392,7 +392,7 @@ class Quotation:
         XML-specific transformation to the QEL representation.
         """
 
-        output = ""
+        output = "<div class='quotation'>\n"
         id = ""
         if self.id:
             id = "id='%s'" % str(self.id)
@@ -407,6 +407,8 @@ class Quotation:
             value = getattr(self, i)
             if value is not None:
                 output += value.as_html()
+
+        output += '</div>\n'
         return output
 
     def as_xml(self):
