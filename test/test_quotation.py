@@ -4,7 +4,7 @@ import unittest
 import re
 from qel import quotation
 
-class QuotationTest(unittest.TestCase):
+class QuotationXMLConvTest(unittest.TestCase):
     "Test of the Quotation class"
     def setUp(self):
         self.qt = quotation.Quotation()
@@ -118,6 +118,13 @@ class QuotationTest(unittest.TestCase):
 note
 """)
 
+class QuotationTestBasic(unittest.TestCase):
+    def setUp(self):
+        self.qt = quotation.Quotation()
+
+    def tearDown(self):
+        del self.qt
+
     def test_is_matching(self):
         self.qt.text = [ [quotation.EmphasizedText('1')],
                          [quotation.Text('para2')] ]
@@ -187,6 +194,19 @@ class CollectionTest(unittest.TestCase):
   </license>
 </quotations>
 """)
+
+
+class QuotationToHTMLTest(unittest.TestCase):
+    def setUp(self):
+        self.qt = quotation.Quotation()
+
+    def tearDown(self):
+        del self.qt
+
+    def testId(self):
+        self.qt.id = "abc"
+        self.assertEqual(self.qt.as_html(),
+                         "<div class='quotation' id='abc'>\n</div>\n")
 
 
 if __name__ == "__main__":

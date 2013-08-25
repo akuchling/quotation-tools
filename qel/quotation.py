@@ -392,13 +392,12 @@ class Quotation:
         XML-specific transformation to the QEL representation.
         """
 
-        output = "<div class='quotation'>\n"
-        id = ""
+        id_attr = ""
         if self.id:
-            id = "id='%s'" % str(self.id)
+            id_attr = " id='%s'" % str(self.id)
+        output = "<div class='quotation'%s>\n" % id_attr
         for paragraph in self.text:
-            output += "<p class='quotation' %s>" % id
-            id = ""
+            output += "<p class='quotation'>"
             for t in paragraph:
                 output += t.as_html()
             output += "</p>\n"
