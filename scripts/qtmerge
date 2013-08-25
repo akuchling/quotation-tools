@@ -51,10 +51,16 @@ def main():
 
     # Merge the listed files
     collections = []
+    attrs = {}
     for filename in args.files:
         with open(filename, 'r') as stream:
             coll = parse(stream)
             collections.append(coll)
+
+            # Record collection attributes if they're present.
+            for attr in ('title', 'description', 'editor'):
+                if (getattr(coll, attr, None)):
+                    attrs[attr] = getattr(coll, attr)
 
     try:
         coll = scripts.merge(*collections, strict=args.strict,
@@ -62,6 +68,10 @@ def main():
     except scripts.DuplicateIDException as exc:
         sys.stderr.write('%s:%s\n' % (filename, str(exc)))
         sys.exit(2)
+
+    # Add collection attributes
+    for k, v in attrs.items():
+        setattr(coll, k, v)
 
     # Output the resulting merged collection as XML.
     encoding = sys.getdefaultencoding()
