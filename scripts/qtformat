@@ -33,9 +33,6 @@ Other options:
   -m N or --max N   Suppress quotations longer than N lines;
                     defaults to 0, which suppresses no quotations at all.
   -r or --randomize Output quotations in random order
-  -s N or --split N Divide the output into chunks of roughly N kilobytes;
-                    the division is indicated by a line containing just
-                    "NEW FILE 1/10"
 """ % sys.argv[0]
 
 
@@ -76,20 +73,11 @@ def main():
                         help='''Suppress quotations longer than N lines;
                         defaults to 0, which suppresses no quotations at all.
                         '''),
-    parser.add_argument('-s', '--split', dest='split_size',
-                        default=None, type=int,
-                        help='''Divide the output into chunks of roughly
-                        N kilobytes; the division is indicated by a line
-                        containing just "NEW FILE 1/10''')
-
     parser.add_argument('-r', '--randomize', dest='randomize',
                         action='store_true', default=False,
                         help='Output quotations in random order')
 
     args = parser.parse_args()
-    if args.split_size is not None:
-        # Convert from K to bytes.
-        args.split_size *= 1024
 
     # Loop over the input files; use sys.stdin if no files are specified
     if len(args.files) == 0:
@@ -119,34 +107,11 @@ def main():
         sys.stdout.write(qtcoll.as_xml(encoding))
         return
 
-    # If we're splitting the output into several files, count up the
-    # total number of files
-    current_file_size = 0
-    num_files = 1
-    if args.split_size is not None:
-        for quote in qtcoll:
-            current_file_size += len(quote)
-            if current_file_size > args.split_size:
-                current_file_size = 0
-                num_files += 1
-
-    # Output the quotations
-    current_file_size = 0
-    if args.split_size is not None:
-        print("NEW FILE 1/%i" % num_files)
-        cur_file = 1
-
     for i in range(len(qtcoll)):
         quote = qtcoll[i]
         meth = getattr(quote, args.output)
         print(meth())
-        current_file_size += len(quote)
-        if (args.split_size is not None and
-            current_file_size > args.split_size and
-            i < len(qtcoll) - 1 ):
-            current_file_size = current_file_size % args.split_size
-            cur_file += 1
-            print("NEW FILE %i/%i" % (cur_file, num_files))
+
     # We're done!
 
 if __name__ == '__main__':
