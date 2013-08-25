@@ -92,7 +92,7 @@ def _divide_into_columns(qtcoll):
 
     return column_list
 
-def write_html_dir(dir, qtcoll):
+def write_html_dir(dir, qtcoll, title):
     """Export a quotation file as a set of HTML pages, using a fancy template.
     """
     from qel.data import HTML_TEMPLATE
@@ -107,16 +107,16 @@ def write_html_dir(dir, qtcoll):
             fn = '{}.html'.format(page_num)
         path = os.path.join(dir, fn)
 
-        last_attr = ('data-last=""' if len(column_list) == 0 else '')
-
         col1 = column_list.pop(0)
         col2 = column_list.pop(0)
 
+        last_attr = ('data-last=""' if len(column_list) == 0 else '')
+
         page = HTML_TEMPLATE.format(page_num=page_num,
                                     last_attr=last_attr,
+                                    title=title,
                                     col1='\n'.join(col1),
                                     col2='\n'.join(col2),
-                                    title="Quotation Collection",
                                 )
 
         with open(path, 'wt', encoding='latin-1') as f:

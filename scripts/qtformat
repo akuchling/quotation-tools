@@ -21,21 +21,6 @@ import sys, os, argparse, random
 import qel
 from qel import parse, quotation, scripts
 
-__doc__ = """Usage: %s [options] file1.xml file2.xml ...
-If no filenames are provided, standard input will be read.
-Output formats:
-  -f or --fortune   Produce output for the fortune(1) program
-  -h or --html      Produce HTML output
-  -R or --rst       Produce RestructuredText output
-  -t or --text      Produce plain text output
-  -w or --wiki      Produce Wikiquote.org-style Wiki output
-  -x or --xml       Produce pretty-printed QEL output
-Other options:
-  -m N or --max N   Suppress quotations longer than N lines;
-                    defaults to 0, which suppresses no quotations at all.
-  -r or --randomize Output quotations in random order
-""" % sys.argv[0]
-
 
 def count_lines(qt, method):
     "Count the number of lines in a quotation's text representation."
@@ -80,6 +65,9 @@ def main():
     parser.add_argument('-r', '--randomize', dest='randomize',
                         action='store_true', default=False,
                         help='Output quotations in random order')
+    parser.add_argument('--title', dest='title',
+                        action='store', default="Quotations", type=str,
+                        help='Title for HTML directory output')
 
     args = parser.parse_args()
 
@@ -112,12 +100,13 @@ def main():
         return
 
     if args.html_pages:
+        args.html_pages = os.path.expanduser(args.html_pages)
         if not os.path.isdir(args.html_pages):
             print("Directory {!r} doesn't exist".format(args.html_pages),
                   file=sys.stderr)
             sys.exit(1)
 
-        scripts.write_html_dir(args.html_pages, qtcoll)
+        scripts.write_html_dir(args.html_pages, qtcoll, args.title)
         sys.exit(0)
 
     for i in range(len(qtcoll)):
