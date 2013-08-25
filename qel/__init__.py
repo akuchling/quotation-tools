@@ -41,6 +41,7 @@ __version__ = '0.0.5'
 QEL_HEADER = """<?xml version="1.0" encoding="%s"?>
 <?xml-stylesheet href="http://www.amk.ca/qel/qel.css"?>
 <quotations
+  xmlns="http://www.amk.ca/qel/"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
 """
