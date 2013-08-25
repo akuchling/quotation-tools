@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*-Python-*-
 #
 # qtformat
 # Copyright 2002, 2013 Andrew M. Kuchling
@@ -16,9 +17,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys, argparse, random
+import sys, os, argparse, random
 import qel
-from qel import parse, quotation
+from qel import parse, quotation, scripts
 
 __doc__ = """Usage: %s [options] file1.xml file2.xml ...
 If no filenames are provided, standard input will be read.
@@ -54,10 +55,13 @@ def main():
                         help='Produce output for the fortune(1) program')
     parser.add_argument('-H', '--html', dest='output', action='store_const',
                         const='as_html',
-                        help='Produce HTML output')
+                        help='Produce HTML output as a single file')
     parser.add_argument('-R', '--rst', dest='output', action='store_const',
                         const='as_rst',
                         help='Produce reStructured Text output')
+    parser.add_argument('--html-pages', dest='html_pages', action='store',
+                        metavar='DIR',
+                        help='Produce HTML output as a directory of files')
     parser.add_argument('-t', '--text', dest='output', action='store_const',
                         const='as_text',
                         help='Produce plain text output')
@@ -106,6 +110,15 @@ def main():
         encoding = sys.getdefaultencoding()
         sys.stdout.write(qtcoll.as_xml(encoding))
         return
+
+    if args.html_pages:
+        if not os.path.isdir(args.html_pages):
+            print("Directory {!r} doesn't exist".format(args.html_pages),
+                  file=sys.stderr)
+            sys.exit(1)
+
+        scripts.write_html_dir(args.html_pages, qtcoll)
+        sys.exit(0)
 
     for i in range(len(qtcoll)):
         quote = qtcoll[i]
